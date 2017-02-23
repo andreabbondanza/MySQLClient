@@ -11,14 +11,34 @@ namespace DewCore.MySQLClient
 {
     public class MySQLConnectionString
     {
-        public string Host;
-        public string Port;
-        public string Database;
-        public string User;
-        public string Password;
-
-
-        public MySQLConnectionString() { }
+        /// <summary>
+        /// server address
+        /// </summary>
+        public readonly string Host;
+        /// <summary>
+        /// server port
+        /// </summary>
+        public readonly string Port;
+        /// <summary>
+        /// database name
+        /// </summary>
+        public readonly string Database;
+        /// <summary>
+        /// username
+        /// </summary>
+        public readonly string User;
+        /// <summary>
+        /// password
+        /// </summary>
+        public readonly string Password;
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="host">server address</param>
+        /// <param name="port">server port</param>
+        /// <param name="database">database name</param>
+        /// <param name="user">username</param>
+        /// <param name="password">password</param>
         public MySQLConnectionString(string host, string port, string database, string user, string password)
         {
             this.Host = host;
@@ -27,12 +47,18 @@ namespace DewCore.MySQLClient
             this.User = user;
             this.Password = password;
         }
-
+        /// <summary>
+        /// Return the current parameters connection string
+        /// </summary>
+        /// <returns></returns>
         public string GetConnectionString()
         {
             return @"host=" + this.Host + ";port=" + this.Port + ";user id=" + this.User + ";password=" + this.Password + ";database=" + this.Database + ";";
         }
     }
+    /// <summary>
+    /// Indicate if class must open a new connection for every query
+    /// </summary>
     public enum OneConnection
     {
         Yes,
@@ -72,14 +98,14 @@ namespace DewCore.MySQLClient
         /// <typeparam name="T"></typeparam>
         /// <param name="selector"></param>
         /// <returns></returns>
-        Task<List<T>> SelectAsync<T>(Func<T, bool> selector);
+        Task<List<T>> SelectAsync<T>(T selector);
         /// <summary>
         /// Perform a delete on a table
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="selector"></param>
         /// <returns></returns>
-        Task<List<T>> DeleteAsync<T>(Func<T, bool> selector);
+        Task<List<T>> DeleteAsync<T>(T selector);
         /// <summary>
         /// Perform an update on a table
         /// </summary>
@@ -87,7 +113,7 @@ namespace DewCore.MySQLClient
         /// <param name="selector"></param>
         /// <param name="updated"></param>
         /// <returns></returns>
-        Task<List<T>> UpdateAsync<T>(Func<T, bool> selector, T updated);
+        Task<List<T>> UpdateAsync<T>(T selector, T updated);
         /// <summary>
         /// Commit a transaction
         /// </summary>
@@ -340,6 +366,21 @@ namespace DewCore.MySQLClient
         /// <param name="updated">T type for update</param>
         /// <returns></returns>
         public Task<List<T>> UpdateAsync<T>(Func<T, bool> selector, T updated)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<T>> SelectAsync<T>(T selector)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<T>> DeleteAsync<T>(T selector)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<List<T>> UpdateAsync<T>(T selector, T updated)
         {
             throw new NotImplementedException();
         }
