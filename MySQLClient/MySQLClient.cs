@@ -2,13 +2,46 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 
 namespace DewCore.MySQLClient
 {
-    public class NoTransactionException : Exception 
+    public class MySQLConnectionString
+    {
+        public string Host;
+        public string Port;
+        public string Database;
+        public string User;
+        public string Password;
+
+
+        public MySQLConnectionString() { }
+        public MySQLConnectionString(string host, string port, string database, string user, string password)
+        {
+            this.Host = host;
+            this.Port = port;
+            this.Database = database;
+            this.User = user;
+            this.Password = password;
+        }
+
+        public string GetConnectionString()
+        {
+            return @"host=" + this.Host + ";port=" + this.Port + ";user id=" + this.User + ";password=" + this.Password + ";database=" + this.Database + ";";
+        }
+    }
+    public enum OneConnection
+    {
+        Yes,
+        No
+    }
+    /// <summary>
+    /// Exception for null reference in transaction
+    /// </summary>
+    public class NoTransactionException : Exception
     {
         public override string ToString()
         {
@@ -39,14 +72,14 @@ namespace DewCore.MySQLClient
         /// <typeparam name="T"></typeparam>
         /// <param name="selector"></param>
         /// <returns></returns>
-        Task<List<T>> SelectAsync<T>(Func<Task, bool> selector);
+        Task<List<T>> SelectAsync<T>(Func<T, bool> selector);
         /// <summary>
         /// Perform a delete on a table
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="selector"></param>
         /// <returns></returns>
-        Task<List<T>> DeleteAsync<T>(Func<Task, bool> selector);
+        Task<List<T>> DeleteAsync<T>(Func<T, bool> selector);
         /// <summary>
         /// Perform an update on a table
         /// </summary>
@@ -54,7 +87,7 @@ namespace DewCore.MySQLClient
         /// <param name="selector"></param>
         /// <param name="updated"></param>
         /// <returns></returns>
-        Task<List<T>> UpdateAsync<T>(Func<Task, bool> selector, T updated);
+        Task<List<T>> UpdateAsync<T>(Func<T, bool> selector, T updated);
         /// <summary>
         /// Commit a transaction
         /// </summary>
@@ -81,12 +114,50 @@ namespace DewCore.MySQLClient
         /// </summary>
         private MySqlTransaction transiction = null;
         /// <summary>
+        /// Open connection type
+        /// </summary>
+        private OneConnection oneConnection = OneConnection.No;
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="connectionString"></param>
-        public MySQLClient(string connectionString)
+        public MySQLClient(string connectionString, OneConnection oneConnection = OneConnection.No)
         {
-            this.Db = new MySqlConnection(connectionString);            
+            this.Db = new MySqlConnection(connectionString);
+            this.oneConnection = oneConnection;
+        }
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="connectionString"></param>
+        public MySQLClient(MySQLConnectionString connectionString, OneConnection oneConnection = OneConnection.No)
+        {
+            this.Db = new MySqlConnection(connectionString.GetConnectionString());
+            this.oneConnection = oneConnection;
+        }
+
+        private async Task OpenConnection()
+        {
+            if (this.Db.State == ConnectionState.Closed || this.Db.State == ConnectionState.Broken)
+                await this.Db.OpenAsync();
+        }
+
+        private void CloseConnection()
+        {
+            if (this.Db.State != ConnectionState.Closed)
+                this.Db.Close();
+        }
+
+        private async Task SetConnectionState()
+        {
+            if (this.oneConnection == OneConnection.No)
+            {
+                await this.Db.OpenAsync();
+            }
+            else
+            {
+                await this.OpenConnection();
+            }
         }
 
         public async Task<bool> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified)
@@ -99,7 +170,7 @@ namespace DewCore.MySQLClient
             }
             catch
             {
-                result = false; 
+                result = false;
             }
             return result;
         }
@@ -114,7 +185,7 @@ namespace DewCore.MySQLClient
             }
         }
 
-        public Task<List<T>> DeleteAsync<T>(Func<Task, bool> selector)
+        public Task<List<T>> DeleteAsync<T>(Func<T, bool> selector)
         {
             throw new NotImplementedException();
         }
@@ -124,7 +195,7 @@ namespace DewCore.MySQLClient
         /// </summary>
         public void Dispose()
         {
-            if(Db != null && Db.State != System.Data.ConnectionState.Closed)
+            if (Db != null && Db.State != ConnectionState.Closed)
                 Db.Close();
         }
         /// <summary>
@@ -134,15 +205,52 @@ namespace DewCore.MySQLClient
         /// <param name="query">Query</param>
         /// <param name="values">List of binded values</param>
         /// <returns>List of T objects (rows)</returns>
-        public List<T> PerformQueryAsync<T>(string query, List<MySqlParameter> values)
+        public async Task<List<T>> PerformQueryAsync<T>(string query, List<MySqlParameter> values = null) where T : class, new()
         {
+            await this.SetConnectionState();
             var cmd = Db.CreateCommand() as MySqlCommand;
-            
-            return null;
+            cmd.CommandText = query;
+            if (values != null)
+            {
+                foreach (var item in values)
+                {
+                    cmd.Parameters.Add(item);
+                }
+            }
+            var reader = await cmd.ExecuteReaderAsync();
+            var result = await this.SetFields<T>(reader);
+            this.CloseConnection();
+            return result;
 
         }
+        /// <summary>
+        /// Set the fields of a Type T from a reader of a T table
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="reader"></param>
+        /// <returns></returns>
+        private async Task<List<T>> SetFields<T>(System.Data.Common.DbDataReader reader) where T : class, new()
+        {
+            var columns = reader.FieldCount;
+            List<T> result = new List<T>();
+            while (await reader.ReadAsync())
+            {
+                T item = new T();
+                var reflection = item.GetType();
+                var properties = reflection.GetRuntimeProperties();
+                for (int i = 0; i < columns; i++)
+                {
+                    var colName = reader.GetName(i);
+                    var property = properties.First((x) => { return x.Name == colName; });
+                    var value = reader.GetValue(i);
+                    property.SetValue(item, value);
+                }
+                result.Add(item);
+            }
+            return result;
+        }
 
-        public Task<List<object[]>> QueryArrayAsync<T>(string query, List<MySqlParameter> values)
+        public Task<List<object[]>> QueryArrayAsync<T>(string query, List<MySqlParameter> values = null)
         {
             throw new NotImplementedException();
         }
@@ -161,15 +269,15 @@ namespace DewCore.MySQLClient
                 await this.transiction.RollbackAsync();
             }
         }
-        public void p(object s,System.EventArgs a)
-        { }
-        public Task<List<T>> SelectAsync<T>(Func<Task, bool> selector)
+
+
+        public Task<List<T>> SelectAsync<T>(Func<T, bool> selector)
         {
-            
+
             throw new NotImplementedException();
         }
 
-        public Task<List<T>> UpdateAsync<T>(Func<Task, bool> selector, T updated)
+        public Task<List<T>> UpdateAsync<T>(Func<T, bool> selector, T updated)
         {
             throw new NotImplementedException();
         }
