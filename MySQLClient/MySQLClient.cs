@@ -57,7 +57,7 @@ namespace DewCore.MySQLClient
         /// <param name="query">Query</param>
         /// <param name="values">List of binded values</param>
         /// <returns>List of array objects (rows)</returns>
-        Task<List<object[]>> QueryArrayAsync<T>(string query, List<MySqlParameter> values);
+        Task<List<object[]>> QueryArrayAsync(string query, List<MySqlParameter> values);
         /// <summary>
         /// Perform a query
         /// </summary>
@@ -65,7 +65,7 @@ namespace DewCore.MySQLClient
         /// <param name="query">Query</param>
         /// <param name="values">List of binded values</param>
         /// <returns>List of T objects (rows)</returns>
-        Task<List<T>> QueryAsync<T>(string query, List<MySqlParameter> values);
+        Task<List<T>> QueryAsync<T>(string query, List<MySqlParameter> values) where T : class, new();
         /// <summary>
         /// Perform a select on a table
         /// </summary>
@@ -101,6 +101,10 @@ namespace DewCore.MySQLClient
         /// </summary>
         /// <returns></returns>
         Task<bool> BeginTransactionAsync(IsolationLevel isolationLevel);
+        /// <summary>
+        /// Close database connection
+        /// </summary>
+        void CloseConnection();
 
     }
     public class MySQLClient : IMySQLClient, IDisposable
@@ -135,19 +139,27 @@ namespace DewCore.MySQLClient
             this.Db = new MySqlConnection(connectionString.GetConnectionString());
             this.oneConnection = oneConnection;
         }
-
+        /// <summary>
+        /// Open a connectino
+        /// </summary>
+        /// <returns></returns>
         private async Task OpenConnection()
         {
             if (this.Db.State == ConnectionState.Closed || this.Db.State == ConnectionState.Broken)
                 await this.Db.OpenAsync();
         }
-
-        private void CloseConnection()
+        /// <summary>
+        /// Close Connection
+        /// </summary>
+        public void CloseConnection()
         {
             if (this.Db.State != ConnectionState.Closed)
                 this.Db.Close();
         }
-
+        /// <summary>
+        /// Set the connection state based from onConnection attribute
+        /// </summary>
+        /// <returns></returns>
         private async Task SetConnectionState()
         {
             if (this.oneConnection == OneConnection.No)
@@ -159,7 +171,11 @@ namespace DewCore.MySQLClient
                 await this.OpenConnection();
             }
         }
-
+        /// <summary>
+        /// Begin a transaction
+        /// </summary>
+        /// <param name="isolationLevel"></param>
+        /// <returns></returns>
         public async Task<bool> BeginTransactionAsync(IsolationLevel isolationLevel = IsolationLevel.Unspecified)
         {
             bool result = true;
@@ -174,7 +190,11 @@ namespace DewCore.MySQLClient
             }
             return result;
         }
-
+        /// <summary>
+        /// Execute commit
+        /// </summary>
+        /// <exception cref="NoTransactionException">No transaction initialized</exception>
+        /// <returns></returns>
         public async Task CommitAsync()
         {
             if (transiction == null)
@@ -184,7 +204,12 @@ namespace DewCore.MySQLClient
                 await this.transiction.CommitAsync();
             }
         }
-
+        /// <summary>
+        /// Delete froma a table
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="selector"></param>
+        /// <returns></returns>
         public Task<List<T>> DeleteAsync<T>(Func<T, bool> selector)
         {
             throw new NotImplementedException();
@@ -203,9 +228,10 @@ namespace DewCore.MySQLClient
         /// </summary>
         /// <typeparam name="T">Result type object</typeparam>
         /// <param name="query">Query</param>
-        /// <param name="values">List of binded values</param>
+        /// <param name="values">List of binded values</param
+        /// <exception cref="MySqlException">MySqlException</exception>
         /// <returns>List of T objects (rows)</returns>
-        public async Task<List<T>> PerformQueryAsync<T>(string query, List<MySqlParameter> values = null) where T : class, new()
+        public async Task<List<T>> QueryAsync<T>(string query, List<MySqlParameter> values = null) where T : class, new()
         {
             await this.SetConnectionState();
             var cmd = Db.CreateCommand() as MySqlCommand;
@@ -219,7 +245,6 @@ namespace DewCore.MySQLClient
             }
             var reader = await cmd.ExecuteReaderAsync();
             var result = await this.SetFields<T>(reader);
-            this.CloseConnection();
             return result;
 
         }
@@ -249,17 +274,44 @@ namespace DewCore.MySQLClient
             }
             return result;
         }
-
-        public Task<List<object[]>> QueryArrayAsync<T>(string query, List<MySqlParameter> values = null)
+        /// <summary>
+        /// Perform a query
+        /// </summary>
+        /// <param name="query">Query</param>
+        /// <param name="values">List of binded values</param
+        /// <exception cref="MySqlException">MySqlException</exception>
+        /// <returns>List of array objects (rows)</returns>
+        public async Task<List<object[]>> QueryArrayAsync(string query, List<MySqlParameter> values = null)
         {
-            throw new NotImplementedException();
+            await this.SetConnectionState();
+            var cmd = Db.CreateCommand() as MySqlCommand;
+            cmd.CommandText = query;
+            if (values != null)
+            {
+                foreach (var item in values)
+                {
+                    cmd.Parameters.Add(item);
+                }
+            }
+            var reader = await cmd.ExecuteReaderAsync();
+            List<object[]> result = new List<object[]>();
+            while (await reader.ReadAsync())
+            {
+                object[] item = new object[reader.FieldCount];
+                for (int i = 0; i < reader.FieldCount; i++)
+                {
+                    item[i] = reader.GetValue(i);
+                }
+                result.Add(item);
+                
+            }
+            return result;
         }
-
-        public Task<List<T>> QueryAsync<T>(string query, List<MySqlParameter> values)
-        {
-            throw new NotImplementedException();
-        }
-
+        /// <summary>
+        /// Execute roolback
+        /// </summary>
+        /// <exception cref="NoTransactionException">No transaction initialized</exception>
+        /// <returns></returns>
         public async Task RoolbackAsync()
         {
             if (transiction == null)
@@ -270,13 +322,23 @@ namespace DewCore.MySQLClient
             }
         }
 
-
+        /// <summary>
+        /// Select with selector and linq. NOTE: T type name must be the same of the TABLE
+        /// </summary>
+        /// <typeparam name="T">Table object</typeparam>
+        /// <param name="selector">selector lambda</param>
+        /// <returns></returns>
         public Task<List<T>> SelectAsync<T>(Func<T, bool> selector)
         {
-
             throw new NotImplementedException();
         }
-
+        /// <summary>
+        /// uPDATE with selector and linq. NOTE: T type name must be the same of the TABLE
+        /// </summary>
+        /// <typeparam name="T">Table object</typeparam>
+        /// <param name="selector">selector lambda</param>
+        /// <param name="updated">T type for update</param>
+        /// <returns></returns>
         public Task<List<T>> UpdateAsync<T>(Func<T, bool> selector, T updated)
         {
             throw new NotImplementedException();
