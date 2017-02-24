@@ -93,28 +93,6 @@ namespace DewCore.MySQLClient
         /// <returns>List of T objects (rows)</returns>
         Task<List<T>> QueryAsync<T>(string query, List<MySqlParameter> values) where T : class, new();
         /// <summary>
-        /// Perform a select on a table
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="selector"></param>
-        /// <returns></returns>
-        Task<List<T>> SelectAsync<T>(T selector);
-        /// <summary>
-        /// Perform a delete on a table
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="selector"></param>
-        /// <returns></returns>
-        Task<List<T>> DeleteAsync<T>(T selector);
-        /// <summary>
-        /// Perform an update on a table
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="selector"></param>
-        /// <param name="updated"></param>
-        /// <returns></returns>
-        Task<List<T>> UpdateAsync<T>(T selector, T updated);
-        /// <summary>
         /// Commit a transaction
         /// </summary>
         Task CommitAsync();
@@ -231,17 +209,6 @@ namespace DewCore.MySQLClient
             }
         }
         /// <summary>
-        /// Delete froma a table
-        /// </summary>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="selector"></param>
-        /// <returns></returns>
-        public Task<List<T>> DeleteAsync<T>(Func<T, bool> selector)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
         /// Dispose client
         /// </summary>
         public void Dispose()
@@ -272,7 +239,6 @@ namespace DewCore.MySQLClient
             var reader = await cmd.ExecuteReaderAsync();
             var result = await this.SetFields<T>(reader);
             return result;
-
         }
         /// <summary>
         /// Set the fields of a Type T from a reader of a T table
@@ -346,43 +312,6 @@ namespace DewCore.MySQLClient
             {
                 await this.transiction.RollbackAsync();
             }
-        }
-
-        /// <summary>
-        /// Select with selector and linq. NOTE: T type name must be the same of the TABLE
-        /// </summary>
-        /// <typeparam name="T">Table object</typeparam>
-        /// <param name="selector">selector lambda</param>
-        /// <returns></returns>
-        public Task<List<T>> SelectAsync<T>(Func<T, bool> selector)
-        {
-            throw new NotImplementedException();
-        }
-        /// <summary>
-        /// uPDATE with selector and linq. NOTE: T type name must be the same of the TABLE
-        /// </summary>
-        /// <typeparam name="T">Table object</typeparam>
-        /// <param name="selector">selector lambda</param>
-        /// <param name="updated">T type for update</param>
-        /// <returns></returns>
-        public Task<List<T>> UpdateAsync<T>(Func<T, bool> selector, T updated)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<T>> SelectAsync<T>(T selector)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<T>> DeleteAsync<T>(T selector)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<List<T>> UpdateAsync<T>(T selector, T updated)
-        {
-            throw new NotImplementedException();
         }
     }
 }
