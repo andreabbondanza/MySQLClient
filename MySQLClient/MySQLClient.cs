@@ -114,6 +114,10 @@ namespace DewCore.MySQLClient
     public class MySQLClient : IMySQLClient, IDisposable
     {
         /// <summary>
+        /// Enable debug
+        /// </summary>
+        public static bool DebugOn = false;
+        /// <summary>
         /// Database connection
         /// </summary>
         public readonly MySqlConnection Db = null;
@@ -133,6 +137,12 @@ namespace DewCore.MySQLClient
         {
             this.Db = new MySqlConnection(connectionString);
             this.oneConnection = oneConnection;
+            if(MySQLClient.DebugOn)
+            {
+                Console.WriteLine("Connection to database:" + Db.Database);
+                Console.WriteLine("With connection string:" + connectionString);
+                Console.WriteLine("And One connection set to:" + this.oneConnection);
+            }
         }
         /// <summary>
         /// Constructor
@@ -142,6 +152,15 @@ namespace DewCore.MySQLClient
         {
             this.Db = new MySqlConnection(connectionString.GetConnectionString());
             this.oneConnection = oneConnection;
+            if (MySQLClient.DebugOn)
+            {
+                Console.WriteLine("Connection to database:" + Db.Database);
+                Console.WriteLine("With user:" + connectionString.User);
+                Console.WriteLine("With password:" + connectionString.Password);
+                Console.WriteLine("With host:" + connectionString.Host);
+                Console.WriteLine("With port:" + connectionString.Port);
+                Console.WriteLine("And One connection set to:" + this.oneConnection);
+            }   
         }
         /// <summary>
         /// Open a connectino
@@ -149,16 +168,41 @@ namespace DewCore.MySQLClient
         /// <returns></returns>
         private async Task OpenConnection()
         {
-            if (this.Db.State == ConnectionState.Closed || this.Db.State == ConnectionState.Broken)
-                await this.Db.OpenAsync();
+            try
+            {
+                if (this.Db.State == ConnectionState.Closed || this.Db.State == ConnectionState.Broken)
+                    await this.Db.OpenAsync();
+                if (MySQLClient.DebugOn)
+                {
+                    Console.WriteLine("Connection opened with:" + Db.Database);
+                }
+            }
+            catch (Exception exc)
+            {
+                if(MySQLClient.DebugOn)
+                    Console.WriteLine("Exception with open connection:" + exc.Message);
+            }
         }
         /// <summary>
         /// Close Connection
         /// </summary>
         public void CloseConnection()
         {
-            if (this.Db.State != ConnectionState.Closed)
-                this.Db.Close();
+            try
+            {
+                if (this.Db.State != ConnectionState.Closed)
+                    this.Db.Close();
+                if (MySQLClient.DebugOn)
+                {
+                    Console.WriteLine("Connection closed with:" + Db.Database);
+                }
+            }
+            catch (Exception exc)
+            {
+
+                if (MySQLClient.DebugOn)
+                    Console.WriteLine("Exception with close connection:" + exc.Message);
+            }
         }
         /// <summary>
         /// Set the connection state based from onConnection attribute
@@ -187,9 +231,14 @@ namespace DewCore.MySQLClient
             {
                 if (this.transiction == null)
                     this.transiction = await Db.BeginTransactionAsync(isolationLevel);
+                if (MySQLClient.DebugOn)
+                    Console.WriteLine("Transactino started on:" + Db.Database);
+                
             }
-            catch
+            catch(Exception exc)
             {
+                if (MySQLClient.DebugOn)
+                    Console.WriteLine("Exception with begin transactino connection:" + exc.Message);
                 result = false;
             }
             return result;
@@ -206,6 +255,8 @@ namespace DewCore.MySQLClient
             else
             {
                 await this.transiction.CommitAsync();
+                if (MySQLClient.DebugOn)
+                    Console.WriteLine("Transaction commited on:" + Db.Database);
             }
         }
         /// <summary>
@@ -215,6 +266,8 @@ namespace DewCore.MySQLClient
         {
             if (Db != null && Db.State != ConnectionState.Closed)
                 Db.Close();
+            if (MySQLClient.DebugOn)
+                Console.WriteLine("MySQLClient object disposed");
         }
         /// <summary>
         /// Perform a query
@@ -227,6 +280,15 @@ namespace DewCore.MySQLClient
         public async Task<List<T>> QueryAsync<T>(string query, List<MySqlParameter> values = null) where T : class, new()
         {
             await this.SetConnectionState();
+            if (MySQLClient.DebugOn)
+            {
+                Console.WriteLine("Executing query: " + query);
+                Console.WriteLine("With params: " + query);
+                foreach (var item in values)
+                {
+                    Console.Write("Type:{0}, value:{1}, paramName:{2}", item.DbType, item.Value, item.ParameterName);
+                }
+            }
             var cmd = Db.CreateCommand() as MySqlCommand;
             cmd.CommandText = query;
             if (values != null)
@@ -276,6 +338,15 @@ namespace DewCore.MySQLClient
         public async Task<List<object[]>> QueryArrayAsync(string query, List<MySqlParameter> values = null)
         {
             await this.SetConnectionState();
+            if (MySQLClient.DebugOn)
+            {
+                Console.WriteLine("Executing query: " + query);
+                Console.WriteLine("With params: " + query);
+                foreach (var item in values)
+                {
+                    Console.Write("Type:{0}, value:{1}, paramName:{2}", item.DbType, item.Value, item.ParameterName);
+                }
+            }
             var cmd = Db.CreateCommand() as MySqlCommand;
             cmd.CommandText = query;
             if (values != null)
@@ -311,6 +382,8 @@ namespace DewCore.MySQLClient
             else
             {
                 await this.transiction.RollbackAsync();
+                if (MySQLClient.DebugOn)
+                    Console.WriteLine("Transaction rollbacked on:" + Db.Database);
             }
         }
     }
