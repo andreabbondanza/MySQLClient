@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 
@@ -74,6 +73,9 @@ namespace DewCore.MySQLClient
             return "No transaction initalized. Missing begin transaction";
         }
     }
+    /// <summary>
+    /// MySQLClient dew interface
+    /// </summary>
     public interface IMySQLClient
     {
         /// <summary>
@@ -118,6 +120,10 @@ namespace DewCore.MySQLClient
         /// </summary>
         public static bool DebugOn = false;
         /// <summary>
+        /// Debugger
+        /// </summary>
+        private static IDewLogger debugger = new DewDebug();
+        /// <summary>
         /// Database connection
         /// </summary>
         public readonly MySqlConnection Db = null;
@@ -129,6 +135,10 @@ namespace DewCore.MySQLClient
         /// Open connection type
         /// </summary>
         private OneConnection oneConnection = OneConnection.No;
+        public static void SetDebugger(IDewLogger debugger)
+        {
+            MySQLClient.debugger = debugger;
+        }
         /// <summary>
         /// Constructor
         /// </summary>
@@ -139,9 +149,9 @@ namespace DewCore.MySQLClient
             this.oneConnection = oneConnection;
             if(MySQLClient.DebugOn)
             {
-                Console.WriteLine("Connection to database:" + Db.Database);
-                Console.WriteLine("With connection string:" + connectionString);
-                Console.WriteLine("And One connection set to:" + this.oneConnection);
+                debugger.WriteLine("Connection to database:" + Db.Database);
+                debugger.WriteLine("With connection string:" + connectionString);
+                debugger.WriteLine("And One connection set to:" + this.oneConnection);
             }
         }
         /// <summary>
@@ -154,12 +164,12 @@ namespace DewCore.MySQLClient
             this.oneConnection = oneConnection;
             if (MySQLClient.DebugOn)
             {
-                Console.WriteLine("Connection to database:" + Db.Database);
-                Console.WriteLine("With user:" + connectionString.User);
-                Console.WriteLine("With password:" + connectionString.Password);
-                Console.WriteLine("With host:" + connectionString.Host);
-                Console.WriteLine("With port:" + connectionString.Port);
-                Console.WriteLine("And One connection set to:" + this.oneConnection);
+                debugger.WriteLine("Connection to database:" + Db.Database);
+                debugger.WriteLine("With user:" + connectionString.User);
+                debugger.WriteLine("With password:" + connectionString.Password);
+                debugger.WriteLine("With host:" + connectionString.Host);
+                debugger.WriteLine("With port:" + connectionString.Port);
+                debugger.WriteLine("And One connection set to:" + this.oneConnection);
             }   
         }
         /// <summary>
@@ -174,13 +184,13 @@ namespace DewCore.MySQLClient
                     await this.Db.OpenAsync();
                 if (MySQLClient.DebugOn)
                 {
-                    Console.WriteLine("Connection opened with:" + Db.Database);
+                    debugger.WriteLine("Connection opened with:" + Db.Database);
                 }
             }
             catch (Exception exc)
             {
                 if(MySQLClient.DebugOn)
-                    Console.WriteLine("Exception with open connection:" + exc.Message);
+                    debugger.WriteLine("Exception with open connection:" + exc.Message);
             }
         }
         /// <summary>
@@ -194,14 +204,14 @@ namespace DewCore.MySQLClient
                     this.Db.Close();
                 if (MySQLClient.DebugOn)
                 {
-                    Console.WriteLine("Connection closed with:" + Db.Database);
+                    debugger.WriteLine("Connection closed with:" + Db.Database);
                 }
             }
             catch (Exception exc)
             {
 
                 if (MySQLClient.DebugOn)
-                    Console.WriteLine("Exception with close connection:" + exc.Message);
+                    debugger.WriteLine("Exception with close connection:" + exc.Message);
             }
         }
         /// <summary>
@@ -232,13 +242,13 @@ namespace DewCore.MySQLClient
                 if (this.transiction == null)
                     this.transiction = await Db.BeginTransactionAsync(isolationLevel);
                 if (MySQLClient.DebugOn)
-                    Console.WriteLine("Transactino started on:" + Db.Database);
+                    debugger.WriteLine("Transactino started on:" + Db.Database);
                 
             }
             catch(Exception exc)
             {
                 if (MySQLClient.DebugOn)
-                    Console.WriteLine("Exception with begin transactino connection:" + exc.Message);
+                    debugger.WriteLine("Exception with begin transactino connection:" + exc.Message);
                 result = false;
             }
             return result;
@@ -256,7 +266,7 @@ namespace DewCore.MySQLClient
             {
                 await this.transiction.CommitAsync();
                 if (MySQLClient.DebugOn)
-                    Console.WriteLine("Transaction commited on:" + Db.Database);
+                    debugger.WriteLine("Transaction commited on:" + Db.Database);
             }
         }
         /// <summary>
@@ -267,7 +277,7 @@ namespace DewCore.MySQLClient
             if (Db != null && Db.State != ConnectionState.Closed)
                 Db.Close();
             if (MySQLClient.DebugOn)
-                Console.WriteLine("MySQLClient object disposed");
+                debugger.WriteLine("MySQLClient object disposed");
         }
         /// <summary>
         /// Perform a query
@@ -282,11 +292,11 @@ namespace DewCore.MySQLClient
             await this.SetConnectionState();
             if (MySQLClient.DebugOn)
             {
-                Console.WriteLine("Executing query: " + query);
-                Console.WriteLine("With params: " + query);
+                debugger.WriteLine("Executing query: " + query);
+                debugger.WriteLine("With params: ");
                 foreach (var item in values)
                 {
-                    Console.Write("Type:{0}, value:{1}, paramName:{2}", item.DbType, item.Value, item.ParameterName);
+                    debugger.WriteLine("Type:{0}, value:{1}, paramName:{2} | ", new object[] { item.DbType, item.Value, item.ParameterName });
                 }
             }
             var cmd = Db.CreateCommand() as MySqlCommand;
@@ -340,11 +350,11 @@ namespace DewCore.MySQLClient
             await this.SetConnectionState();
             if (MySQLClient.DebugOn)
             {
-                Console.WriteLine("Executing query: " + query);
-                Console.WriteLine("With params: " + query);
+                debugger.WriteLine("Executing query: " + query);
+                debugger.WriteLine("With params: " );
                 foreach (var item in values)
                 {
-                    Console.Write("Type:{0}, value:{1}, paramName:{2}", item.DbType, item.Value, item.ParameterName);
+                    debugger.WriteLine("Type:{0}, value:{1}, paramName:{2} | ", new object[] { item.DbType, item.Value, item.ParameterName });
                 }
             }
             var cmd = Db.CreateCommand() as MySqlCommand;
@@ -383,7 +393,7 @@ namespace DewCore.MySQLClient
             {
                 await this.transiction.RollbackAsync();
                 if (MySQLClient.DebugOn)
-                    Console.WriteLine("Transaction rollbacked on:" + Db.Database);
+                    debugger.WriteLine("Transaction rollbacked on:" + Db.Database);
             }
         }
     }
