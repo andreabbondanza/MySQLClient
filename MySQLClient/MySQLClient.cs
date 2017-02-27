@@ -60,7 +60,13 @@ namespace DewCore.MySQLClient
     /// </summary>
     public enum OneConnection
     {
+        /// <summary>
+        /// One connection
+        /// </summary>
         Yes,
+        /// <summary>
+        /// Multiple connections
+        /// </summary>
         No
     }
     /// <summary>
@@ -68,6 +74,10 @@ namespace DewCore.MySQLClient
     /// </summary>
     public class NoTransactionException : Exception
     {
+        /// <summary>
+        /// To string
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return "No transaction initalized. Missing begin transaction";
