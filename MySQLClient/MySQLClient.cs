@@ -8,9 +8,6 @@ using MySql.Data.MySqlClient;
 
 namespace DewCore.MySQLClient
 {
-    /// <summary>
-    /// Connection string
-    /// </summary>
     public class MySQLConnectionString
     {
         /// <summary>
@@ -64,11 +61,11 @@ namespace DewCore.MySQLClient
     public enum OneConnection
     {
         /// <summary>
-        /// Yes
+        /// One connection
         /// </summary>
         Yes,
         /// <summary>
-        /// No
+        /// Multiple connections
         /// </summary>
         No
     }
@@ -78,7 +75,7 @@ namespace DewCore.MySQLClient
     public class NoTransactionException : Exception
     {
         /// <summary>
-        /// ToString exception message
+        /// To string
         /// </summary>
         /// <returns></returns>
         public override string ToString()
@@ -126,9 +123,6 @@ namespace DewCore.MySQLClient
         void CloseConnection();
 
     }
-    /// <summary>
-    /// Mysqlclient class
-    /// </summary>
     public class MySQLClient : IMySQLClient, IDisposable
     {
         /// <summary>
