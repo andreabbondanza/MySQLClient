@@ -1,11 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySQLClient", "MySQLClient\MySQLClient.csproj", "{9E13B873-7490-4798-85CF-4A5B3F21686F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DewDebug", "..\DewDebug\DewDebug\DewDebug.csproj", "{4DE1CC1A-5229-49C1-ABB2-F7E63BD5C466}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +15,6 @@ Global
 		{9E13B873-7490-4798-85CF-4A5B3F21686F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E13B873-7490-4798-85CF-4A5B3F21686F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9E13B873-7490-4798-85CF-4A5B3F21686F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4DE1CC1A-5229-49C1-ABB2-F7E63BD5C466}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4DE1CC1A-5229-49C1-ABB2-F7E63BD5C466}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4DE1CC1A-5229-49C1-ABB2-F7E63BD5C466}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4DE1CC1A-5229-49C1-ABB2-F7E63BD5C466}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

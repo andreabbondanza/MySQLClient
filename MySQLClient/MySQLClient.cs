@@ -8,6 +8,9 @@ using MySql.Data.MySqlClient;
 
 namespace DewCore.MySQLClient
 {
+    /// <summary>
+    /// Connection string
+    /// </summary>
     public class MySQLConnectionString
     {
         /// <summary>
@@ -60,7 +63,13 @@ namespace DewCore.MySQLClient
     /// </summary>
     public enum OneConnection
     {
+        /// <summary>
+        /// Yes
+        /// </summary>
         Yes,
+        /// <summary>
+        /// No
+        /// </summary>
         No
     }
     /// <summary>
@@ -68,6 +77,10 @@ namespace DewCore.MySQLClient
     /// </summary>
     public class NoTransactionException : Exception
     {
+        /// <summary>
+        /// ToString exception message
+        /// </summary>
+        /// <returns></returns>
         public override string ToString()
         {
             return "No transaction initalized. Missing begin transaction";
@@ -113,6 +126,9 @@ namespace DewCore.MySQLClient
         void CloseConnection();
 
     }
+    /// <summary>
+    /// Mysqlclient class
+    /// </summary>
     public class MySQLClient : IMySQLClient, IDisposable
     {
         /// <summary>

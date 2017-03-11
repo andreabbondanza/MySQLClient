@@ -43,12 +43,6 @@
     <Compile Include="MySQLClient.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\DewDebug\DewDebug\DewDebug.csproj">
-      <Project>{4de1cc1a-5229-49c1-abb2-f7e63bd5c466}</Project>
-      <Name>DewDebug</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
