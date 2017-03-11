@@ -5,111 +5,11 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
+using DewCore.MySQLClient.Enums;
+using DewCore.MySQLClient.Exceptions;
 
 namespace DewCore.MySQLClient
-{
-    /// <summary>
-    /// MySQLClient response object (for update,insert,delete)
-    /// </summary>
-    public class MySQLResponse
-    {
-        /// <summary>
-        /// Last insert id for the query
-        /// </summary>
-        public readonly long LastInsertId;
-        /// <summary>
-        /// Number of rows affected for the query
-        /// </summary>
-        public readonly long RowsAffected;
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="lastInsertId"></param>
-        /// <param name="rowsAffected"></param>
-        public MySQLResponse(long lastInsertId, long rowsAffected)
-        {
-            LastInsertId = lastInsertId;
-            RowsAffected = rowsAffected;
-        }
-    }
-    /// <summary>
-    /// MySQL connection string
-    /// </summary>
-    public class MySQLConnectionString
-    {
-        /// <summary>
-        /// server address
-        /// </summary>
-        public readonly string Host;
-        /// <summary>
-        /// server port
-        /// </summary>
-        public readonly string Port;
-        /// <summary>
-        /// database name
-        /// </summary>
-        public readonly string Database;
-        /// <summary>
-        /// username
-        /// </summary>
-        public readonly string User;
-        /// <summary>
-        /// password
-        /// </summary>
-        public readonly string Password;
-        /// <summary>
-        /// Constructor
-        /// </summary>
-        /// <param name="host">server address</param>
-        /// <param name="port">server port</param>
-        /// <param name="database">database name</param>
-        /// <param name="user">username</param>
-        /// <param name="password">password</param>
-        public MySQLConnectionString(string host, string port, string database, string user, string password)
-        {
-            this.Host = host;
-            this.Port = port;
-            this.Database = database;
-            this.User = user;
-            this.Password = password;
-        }
-        /// <summary>
-        /// Return the current parameters connection string
-        /// </summary>
-        /// <returns></returns>
-        public string GetConnectionString()
-        {
-            return @"host=" + this.Host + ";port=" + this.Port + ";user id=" + this.User + ";password=" + this.Password + ";database=" + this.Database + ";";
-        }
-    }
-    /// <summary>
-    /// Indicate if class must open a new connection for every query
-    /// </summary>
-    public enum OneConnection
-    {
-        /// <summary>
-        /// One connection
-        /// </summary>
-        Yes,
-        /// <summary>
-        /// Multiple connections
-        /// </summary>
-        No
-    }
-    /// <summary>
-    /// Exception for null reference in transaction
-    /// </summary>
-    public class NoTransactionException : Exception
-    {
-        /// <summary>
-        /// To string
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return "No transaction initalized. Missing begin transaction";
-        }
-    }
+{    
     /// <summary>
     /// MySQLClient dew interface
     /// </summary>
@@ -124,13 +24,28 @@ namespace DewCore.MySQLClient
         /// <returns>List of array objects (rows)</returns>
         Task<List<object[]>> QueryArrayAsync(string query, List<MySqlParameter> values);
         /// <summary>
-        /// Perform a query (good for SELECT)
+        /// Perform a query (good for SELECT) : 
         /// </summary>
         /// <typeparam name="T">Result type object</typeparam>
         /// <param name="query">Query</param>
         /// <param name="values">List of binded values</param>
         /// <returns>List of T objects (rows)</returns>
         Task<List<T>> QueryAsync<T>(string query, List<MySqlParameter> values) where T : class, new();
+        /// <summary>
+        /// Select directly in LINQ. NOTE: T name must be the Table Name
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="predicate"></param>
+        /// <param name="tablePrefix"></param>
+        /// <returns></returns>
+        Task<List<T>> Select<T>(Func<T, bool> predicate, string tablePrefix) where T : class, new();
+        /// <summary>
+        /// Select directly in LINQ. NOTE: T name must be the Table Name
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tablePrefix"></param>
+        /// <returns></returns>
+        Task<List<T>> Select<T>(string tablePrefix) where T : class, new();
         /// <summary>
         /// Perform a query (good for insert, update, delete)
         /// </summary>
@@ -199,7 +114,7 @@ namespace DewCore.MySQLClient
         {
             this.Db = new MySqlConnection(connectionString);
             this.oneConnection = oneConnection;
-            if (MySQLClient.DebugOn)
+            if (DebugOn)
             {
                 debugger.WriteLine("Connection to database:" + Db.Database);
                 debugger.WriteLine("With connection string:" + connectionString);
@@ -215,7 +130,7 @@ namespace DewCore.MySQLClient
         {
             this.Db = new MySqlConnection(connectionString.GetConnectionString());
             this.oneConnection = oneConnection;
-            if (MySQLClient.DebugOn)
+            if (DebugOn)
             {
                 debugger.WriteLine("Connection to database:" + Db.Database);
                 debugger.WriteLine("With user:" + connectionString.User);
@@ -235,14 +150,14 @@ namespace DewCore.MySQLClient
             {
                 if (this.Db.State == ConnectionState.Closed || this.Db.State == ConnectionState.Broken)
                     await this.Db.OpenAsync();
-                if (MySQLClient.DebugOn)
+                if (DebugOn)
                 {
                     debugger.WriteLine("Connection opened with:" + Db.Database);
                 }
             }
             catch (Exception exc)
             {
-                if (MySQLClient.DebugOn)
+                if (DebugOn)
                     debugger.WriteLine("Exception with open connection:" + exc.Message);
             }
         }
@@ -255,7 +170,7 @@ namespace DewCore.MySQLClient
             {
                 if (this.Db.State != ConnectionState.Closed)
                     this.Db.Close();
-                if (MySQLClient.DebugOn)
+                if (DebugOn)
                 {
                     debugger.WriteLine("Connection closed with:" + Db.Database);
                 }
@@ -263,7 +178,7 @@ namespace DewCore.MySQLClient
             catch (Exception exc)
             {
 
-                if (MySQLClient.DebugOn)
+                if (DebugOn)
                     debugger.WriteLine("Exception with close connection:" + exc.Message);
             }
         }
@@ -294,13 +209,13 @@ namespace DewCore.MySQLClient
             {
                 if (this.transiction == null)
                     this.transiction = await Db.BeginTransactionAsync(isolationLevel);
-                if (MySQLClient.DebugOn)
+                if (DebugOn)
                     debugger.WriteLine("Transactino started on:" + Db.Database);
 
             }
             catch (Exception exc)
             {
-                if (MySQLClient.DebugOn)
+                if (DebugOn)
                     debugger.WriteLine("Exception with begin transactino connection:" + exc.Message);
                 result = false;
             }
@@ -318,7 +233,7 @@ namespace DewCore.MySQLClient
             else
             {
                 await this.transiction.CommitAsync();
-                if (MySQLClient.DebugOn)
+                if (DebugOn)
                     debugger.WriteLine("Transaction commited on:" + Db.Database);
             }
         }
@@ -329,7 +244,7 @@ namespace DewCore.MySQLClient
         {
             if (Db != null && Db.State != ConnectionState.Closed)
                 Db.Close();
-            if (MySQLClient.DebugOn)
+            if (DebugOn)
                 debugger.WriteLine("MySQLClient object disposed");
         }
         /// <summary>
@@ -343,7 +258,7 @@ namespace DewCore.MySQLClient
         public async Task<List<T>> QueryAsync<T>(string query, List<MySqlParameter> values = null) where T : class, new()
         {
             await this.SetConnectionState();
-            if (MySQLClient.DebugOn)
+            if (DebugOn)
             {
                 debugger.WriteLine("Executing query: " + query);
                 debugger.WriteLine("With params: ");
@@ -369,7 +284,7 @@ namespace DewCore.MySQLClient
                 {
                     result = await this.SetFields<T>(reader);
                 }
-             
+
             }
             return result;
         }
@@ -409,7 +324,7 @@ namespace DewCore.MySQLClient
         public async Task<List<object[]>> QueryArrayAsync(string query, List<MySqlParameter> values = null)
         {
             await this.SetConnectionState();
-            if (MySQLClient.DebugOn)
+            if (DebugOn)
             {
                 debugger.WriteLine("Executing query: " + query);
                 debugger.WriteLine("With params: ");
@@ -454,7 +369,7 @@ namespace DewCore.MySQLClient
             else
             {
                 await this.transiction.RollbackAsync();
-                if (MySQLClient.DebugOn)
+                if (DebugOn)
                     debugger.WriteLine("Transaction rollbacked on:" + Db.Database);
             }
         }
@@ -467,7 +382,7 @@ namespace DewCore.MySQLClient
         public async Task<MySQLResponse> QueryAsync(string query, List<MySqlParameter> values = null)
         {
             await this.SetConnectionState();
-            if (MySQLClient.DebugOn)
+            if (DebugOn)
             {
                 debugger.WriteLine("Executing query: " + query);
                 debugger.WriteLine("With params: ");
@@ -488,6 +403,31 @@ namespace DewCore.MySQLClient
             }
             var reader = await cmd.ExecuteReaderAsync();
             return new MySQLResponse(cmd.LastInsertedId, reader.RecordsAffected);
+        }
+        /// <summary>
+        /// Select directly in LINQ. NOTE: T name must be the Table Name
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="predicate"></param>
+        /// <param name="tablePrefix"></param>
+        /// <returns></returns>
+        public async Task<List<T>> Select<T>(Func<T, bool> predicate, string tablePrefix = null) where T : class, new()
+        {
+            Type t = typeof(T);
+            var response = await this.QueryAsync<T>($"SELECT * FROM {tablePrefix}{t.Name}");
+            return response.Where(predicate).ToList<T>();
+        }
+        /// <summary>
+        /// Select directly in LINQ. NOTE: T name must be the Table Name
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tablePrefix"></param>
+        /// <returns></returns>
+        public async Task<List<T>> Select<T>(string tablePrefix = null) where T : class, new()
+        {
+            Type t = typeof(T);
+            var response = await this.QueryAsync<T>($"SELECT * FROM {tablePrefix}{t.Name}");
+            return response;
         }
     }
 }
