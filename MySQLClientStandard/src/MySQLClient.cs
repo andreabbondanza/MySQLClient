@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 using DewCore.MySQLClient.Enums;
 using DewCore.MySQLClient.Exceptions;
+using DewCore.DewLogger;
 
 namespace DewCore.MySQLClient
 {    
@@ -82,9 +83,9 @@ namespace DewCore.MySQLClient
         /// </summary>
         public static bool DebugOn = false;
         /// <summary>
-        /// Debugger
+        /// debugger
         /// </summary>
-        private static IDewLogger debugger = new DewConsole();
+        private static IDewLogger debugger = new DewDebug();
         /// <summary>
         /// Database connection
         /// </summary>
@@ -101,7 +102,7 @@ namespace DewCore.MySQLClient
         /// Set logger
         /// </summary>
         /// <param name="debugger"></param>
-        public static void SetDebugger(IDewLogger debugger)
+        public static void Setdebugger(IDewLogger debugger)
         {
             MySQLClient.debugger = debugger;
         }
