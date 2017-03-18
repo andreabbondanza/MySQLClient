@@ -102,7 +102,7 @@ namespace DewCore.MySQLClient
         /// Set logger
         /// </summary>
         /// <param name="debugger"></param>
-        public static void Setdebugger(IDewLogger debugger)
+        public static void SetDebugger(IDewLogger debugger)
         {
             MySQLClient.debugger = debugger;
         }
