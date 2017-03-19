@@ -2,6 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.3</TargetFramework>
+    <AssemblyName>DewMySQLClient</AssemblyName>
+    <RootNamespace>DewCore.DewDatabase.MySQL</RootNamespace>
+    <Authors>Andrea Vincenzo Abbondanza</Authors>
+    <Company>Dew Studio</Company>
+    <Product>Dew MySQL Client</Product>
+    <Description>A client for mysql for .net standard, using mysql connector</Description>
+    <PackageProjectUrl>https://github.com/andreabbondanza/MySQLClient</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/andreabbondanza/MySQLClient</RepositoryUrl>
+    <PackageLicenseUrl>https://github.com/andreabbondanza/MySQLClient/blob/master/README.md</PackageLicenseUrl>
+    <PackageTags>MySQL .net standard</PackageTags>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageIconUrl>http://andrewdev.eu/wp-content/uploads/2016/08/OnlyLogo.png</PackageIconUrl>
   </PropertyGroup>
 
   <ItemGroup>
