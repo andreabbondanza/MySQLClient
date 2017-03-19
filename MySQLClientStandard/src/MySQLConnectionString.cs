@@ -1,4 +1,4 @@
-﻿namespace DewCore.MySQLClient
+﻿namespace DewCore.DewDatabase.MySQL
 {
     /// <summary>
     /// MySQL connection string

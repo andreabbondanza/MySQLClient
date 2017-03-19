@@ -1,18 +1,21 @@
-﻿namespace DewCore.MySQLClient
+﻿using System;
+using DewInterfaces.DewDatabase.MySQL;
+
+namespace DewCore.DewDatabase.MySQL
 {
     /// <summary>
     /// MySQLClient response object (for update,insert,delete)
     /// </summary>
-    public class MySQLResponse
+    public class MySQLResponse : IMySQLResponse
     {
         /// <summary>
         /// Last insert id for the query
         /// </summary>
-        public readonly long LastInsertId;
+        private readonly long LastInsertId;
         /// <summary>
         /// Number of rows affected for the query
         /// </summary>
-        public readonly long RowsAffected;
+        private readonly long RowsAffected;
         /// <summary>
         /// Constructor
         /// </summary>
@@ -22,6 +25,16 @@
         {
             LastInsertId = lastInsertId;
             RowsAffected = rowsAffected;
+        }
+
+        public long GetLastInsertedId()
+        {
+            return this.LastInsertId;
+        }
+
+        public long GetRowsAffected()
+        {
+            return this.RowsAffected;
         }
     }
 }

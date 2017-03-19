@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DewCore.MySQLClient.Exceptions
+namespace DewCore.DewDatabase.MySQL
 {
     /// <summary>
     /// Exception for null reference in transaction

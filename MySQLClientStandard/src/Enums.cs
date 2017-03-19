@@ -1,4 +1,4 @@
-﻿namespace DewCore.MySQLClient.Enums
+﻿namespace DewCore.DewDatabase.MySQL
 {
     /// <summary>
     /// Indicate if class must open a new connection for every query
