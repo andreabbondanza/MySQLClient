@@ -147,6 +147,7 @@ namespace DewCore.DewDatabase.MySQL
             bool result = true;
             try
             {
+                await this.OpenConnection();
                 if (this.transiction == null)
                     this.transiction = await Db.BeginTransactionAsync(isolationLevel);
                 if (DebugOn)
@@ -283,17 +284,18 @@ namespace DewCore.DewDatabase.MySQL
                     cmd.Parameters.Add(item);
                 }
             }
-            var reader = await cmd.ExecuteReaderAsync();
             List<object[]> result = new List<object[]>();
-            while (await reader.ReadAsync())
-            {
-                object[] item = new object[reader.FieldCount];
-                for (int i = 0; i < reader.FieldCount; i++)
+            using (var reader = await cmd.ExecuteReaderAsync())
+            {                
+                while (await reader.ReadAsync())
                 {
-                    item[i] = reader.GetValue(i);
+                    object[] item = new object[reader.FieldCount];
+                    for (int i = 0; i < reader.FieldCount; i++)
+                    {
+                        item[i] = reader.GetValue(i);
+                    }
+                    result.Add(item);
                 }
-                result.Add(item);
-
             }
             return result;
         }
@@ -341,8 +343,12 @@ namespace DewCore.DewDatabase.MySQL
                     cmd.Parameters.Add(item);
                 }
             }
-            var reader = await cmd.ExecuteReaderAsync();
-            return new MySQLResponse(cmd.LastInsertedId, reader.RecordsAffected);
+            int affectedRows = 0;
+            using (var reader = await cmd.ExecuteReaderAsync())
+            {
+                affectedRows = reader.RecordsAffected;
+            }
+            return new MySQLResponse(cmd.LastInsertedId, affectedRows);
         }
         /// <summary>
         /// Select directly in LINQ. NOTE: T name must be the Table Name

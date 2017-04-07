@@ -14,6 +14,8 @@
     <PackageTags>MySQL .net standard</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageIconUrl>http://andrewdev.eu/wp-content/uploads/2016/08/OnlyLogo.png</PackageIconUrl>
+    <Version>1.0.1</Version>
+    <PackageReleaseNotes>Fixed readers memory leak, fixed transaction opening</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
