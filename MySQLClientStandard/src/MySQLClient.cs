@@ -11,7 +11,7 @@ using DewInterfaces.DewDatabase.MySQL;
 using System.Data.Common;
 
 namespace DewCore.DewDatabase.MySQL
-{    
+{
     /// <summary>
     /// Client
     /// </summary>
@@ -286,7 +286,7 @@ namespace DewCore.DewDatabase.MySQL
             }
             List<object[]> result = new List<object[]>();
             using (var reader = await cmd.ExecuteReaderAsync())
-            {                
+            {
                 while (await reader.ReadAsync())
                 {
                     object[] item = new object[reader.FieldCount];
@@ -374,6 +374,96 @@ namespace DewCore.DewDatabase.MySQL
             Type t = typeof(T);
             var response = await this.QueryAsync<T>($"SELECT * FROM {tablePrefix}{t.Name}");
             return response;
+        }
+        /// <summary>
+        /// Insert a row into the T table
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="newRow">The data</param>
+        /// <param name="tablePrefix">a table prefix if exists</param>
+        /// <returns></returns>
+        public async Task<IMySQLResponse> InsertAsync<T>(T newRow, string tablePrefix = null) where T : class
+        {
+            Type t = newRow.GetType();
+            string name = tablePrefix + t.Name;
+            string queryBefore = $"INSERT INTO {name} (";
+            string queryAfter = ") VALUES (";
+            List<DbParameter> parameters = new List<DbParameter>();
+            foreach (var item in t.GetRuntimeProperties())
+            {
+                IEnumerable<Attribute> attributes = item.GetCustomAttributes();
+                if (attributes.FirstOrDefault(x => x.GetType() == typeof(IgnoreInsert)) == default(Attribute))
+                {
+                    queryBefore += item.Name + ",";
+                    queryAfter += $"@{item.Name.ToLower()},";
+                    parameters.Add(new MySqlParameter() { ParameterName = $"@{item.Name.ToLower()}", Value = item.GetValue(newRow) });
+                }
+            }
+            queryBefore = queryBefore.Substring(0, queryBefore.Length - 1);
+            queryAfter = queryAfter.Substring(0, queryAfter.Length - 1) + ")";
+            string query = queryBefore + queryAfter;
+            return await QueryAsync(query, parameters);
+        }
+        /// <summary>
+        /// Delete a row into the T table. Works only with "=" assertions
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="toDelete">The data</param>
+        /// <param name="tablePrefix">a table prefix if exists</param>
+        /// <returns></returns>
+        public async Task<IMySQLResponse> DeleteAsync<T>(T toDelete, string tablePrefix = null) where T : class
+        {
+            Type t = toDelete.GetType();
+            string name = tablePrefix + t.Name;
+            string query = $"DELETE FROM {name} WHERE ";
+            List<DbParameter> parameters = new List<DbParameter>();
+            foreach (var item in t.GetRuntimeProperties())
+            {
+                IEnumerable<Attribute> attributes = item.GetCustomAttributes();
+                if (attributes.FirstOrDefault(x => x.GetType() == typeof(CheckDelete)) != default(Attribute))
+                {
+                    query += item.Name + $"=@{item.Name.ToLower()} AND ";
+                    parameters.Add(new MySqlParameter() { ParameterName = $"@{item.Name.ToLower()}", Value = item.GetValue(toDelete) });
+                }
+            }
+            query = query.Substring(0, query.Length - 5);
+            return await QueryAsync(query, parameters);
+        }
+        /// <summary>
+        /// Update a row into the T table.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="toFind">The searched row</param>
+        /// <param name="toUpdate">the row</param>
+        /// <param name="tablePrefix">a table prefix if exists</param>
+        /// <returns></returns>
+        public async Task<IMySQLResponse> UpdateAsync<T>(T toFind, T toUpdate, string tablePrefix = null) where T : class
+        {
+            Type t = toUpdate.GetType();
+            string name = tablePrefix + t.Name;
+            string query = $"UPDATE {name} SET ";
+            List<DbParameter> parameters = new List<DbParameter>();
+            foreach (var item in t.GetRuntimeProperties())
+            {
+                IEnumerable<Attribute> attributes = item.GetCustomAttributes();
+                if (attributes.FirstOrDefault(x => x.GetType() == typeof(IgnoreUpdate)) == default(Attribute))
+                {
+                    query += item.Name + $"=@{item.Name.ToLower()},";
+                    parameters.Add(new MySqlParameter() { ParameterName = $"@{item.Name.ToLower()}", Value = item.GetValue(toUpdate) });
+                }
+            }
+            query = query.Substring(0, query.Length - 1) + " WHERE ";
+            foreach (var item in t.GetRuntimeProperties())
+            {
+                IEnumerable<Attribute> attributes = item.GetCustomAttributes();
+                if (attributes.FirstOrDefault(x => x.GetType() == typeof(CheckUpdate)) != default(Attribute))
+                {
+                    query += item.Name + $"=@u{item.Name.ToLower()} AND ";
+                    parameters.Add(new MySqlParameter() { ParameterName = $"@u{item.Name.ToLower()}", Value = item.GetValue(toFind) });
+                }
+            }
+            query = query.Substring(0, query.Length - 5);
+            return await QueryAsync(query, parameters);
         }
     }
 }

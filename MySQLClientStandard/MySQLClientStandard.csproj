@@ -14,14 +14,16 @@
     <PackageTags>MySQL .net standard</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageIconUrl>http://andrewdev.eu/wp-content/uploads/2016/08/OnlyLogo.png</PackageIconUrl>
-    <Version>1.0.1</Version>
+    <Version>1.1.0</Version>
     <PackageReleaseNotes>Fixed readers memory leak, fixed transaction opening</PackageReleaseNotes>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DewInterfaces" Version="1.0.5" />
-    <PackageReference Include="DewLogger" Version="1.0.8" />
-    <PackageReference Include="MySqlConnector" Version="0.14.0" />
+    <PackageReference Include="DewInterfaces" Version="1.0.6" />
+    <PackageReference Include="DewLogger" Version="1.0.10" />
+    <PackageReference Include="MySqlConnector" Version="0.18.2" />
   </ItemGroup>
 
 </Project>
