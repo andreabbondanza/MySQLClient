@@ -1,5 +1,5 @@
 # MySQLClient
-A .net standard client for MySQL based on MySQLConnector
+A .net standard client for MySQL based on __MySQLConnector__
 
 # How to use
 Library examples
