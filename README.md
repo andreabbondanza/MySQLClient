@@ -4,11 +4,10 @@ A .net standard client for MySQL based on MySQLConnector
 # How to use
 Library examples
 
-## MySqlConnectionString
-
 ## MySqlClient
 
 ### Correct use
+__NOTE:__ You can also pass to MySQLClient constructor the default connectino string
 
 ```csharp
 public async Task ExampleNormal()
