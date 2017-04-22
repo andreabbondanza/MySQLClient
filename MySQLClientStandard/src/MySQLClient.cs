@@ -34,10 +34,6 @@ namespace DewCore.DewDatabase.MySQL
         /// </summary>
         private MySqlTransaction transiction = null;
         /// <summary>
-        /// Open connection type
-        /// </summary>
-        private OneConnection oneConnection = OneConnection.No;
-        /// <summary>
         /// Set logger
         /// </summary>
         /// <param name="debugger"></param>
@@ -49,27 +45,22 @@ namespace DewCore.DewDatabase.MySQL
         /// Constructor
         /// </summary>
         /// <param name="connectionString"></param>
-        /// <param name="oneConnection"></param>
-        public MySQLClient(string connectionString, OneConnection oneConnection = OneConnection.No)
+        public MySQLClient(string connectionString)
         {
             this.Db = new MySqlConnection(connectionString);
-            this.oneConnection = oneConnection;
             if (DebugOn)
             {
                 debugger.WriteLine("Connection to database:" + Db.Database);
                 debugger.WriteLine("With connection string:" + connectionString);
-                debugger.WriteLine("And One connection set to:" + this.oneConnection);
             }
         }
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="connectionString"></param>
-        /// <param name="oneConnection"></param>
-        public MySQLClient(MySQLConnectionString connectionString, OneConnection oneConnection = OneConnection.No)
+        public MySQLClient(MySQLConnectionString connectionString)
         {
             this.Db = new MySqlConnection(connectionString.GetConnectionString());
-            this.oneConnection = oneConnection;
             if (DebugOn)
             {
                 debugger.WriteLine("Connection to database:" + Db.Database);
@@ -77,7 +68,6 @@ namespace DewCore.DewDatabase.MySQL
                 debugger.WriteLine("With password:" + connectionString.Password);
                 debugger.WriteLine("With host:" + connectionString.Host);
                 debugger.WriteLine("With port:" + connectionString.Port);
-                debugger.WriteLine("And One connection set to:" + this.oneConnection);
             }
         }
         /// <summary>
@@ -128,7 +118,7 @@ namespace DewCore.DewDatabase.MySQL
         /// <returns></returns>
         private async Task SetConnectionState()
         {
-            if (this.oneConnection == OneConnection.No && this.Db.State != ConnectionState.Open)
+            if (this.Db.State != ConnectionState.Open)
             {
                 await this.Db.OpenAsync();
             }
@@ -193,10 +183,10 @@ namespace DewCore.DewDatabase.MySQL
         /// </summary>
         /// <typeparam name="T">Result type object</typeparam>
         /// <param name="query">Query</param>
-        /// <param name="values">List of binded values</param
+        /// <param name="values">ICollection of binded values</param
         /// <exception cref="MySqlException">MySqlException</exception>
-        /// <returns>List of T objects (rows)</returns>
-        public async Task<List<T>> QueryAsync<T>(string query, List<DbParameter> values = null) where T : class, new()
+        /// <returns>ICollection of T objects (rows)</returns>
+        public async Task<ICollection<T>> QueryAsync<T>(string query, ICollection<DbParameter> values = null) where T : class, new()
         {
             await this.SetConnectionState();
             if (DebugOn)
@@ -209,7 +199,7 @@ namespace DewCore.DewDatabase.MySQL
                         debugger.WriteLine("Type:{0}, value:{1}, paramName:{2} | ", new object[] { item.DbType, item.Value, item.ParameterName });
                     }
             }
-            List<T> result = null;
+            ICollection<T> result = null;
             using (var cmd = Db.CreateCommand() as MySqlCommand)
             {
 
@@ -235,10 +225,10 @@ namespace DewCore.DewDatabase.MySQL
         /// <typeparam name="T"></typeparam>
         /// <param name="reader"></param>
         /// <returns></returns>
-        private async Task<List<T>> SetFields<T>(DbDataReader reader) where T : class, new()
+        private async Task<ICollection<T>> SetFields<T>(DbDataReader reader) where T : class, new()
         {
             var columns = reader.FieldCount;
-            List<T> result = new List<T>();
+            ICollection<T> result = new List<T>();
             while (await reader.ReadAsync())
             {
                 T item = new T();
@@ -247,7 +237,7 @@ namespace DewCore.DewDatabase.MySQL
                 for (int i = 0; i < columns; i++)
                 {
                     var colName = reader.GetName(i);
-                    var property = properties.First((x) => { return x.Name == colName; });
+                    var property = properties.First((x) => { return x.Name == colName; });//NULLABLEEEEEEEEEEEEEEEEEEEEE
                     var value = reader.GetValue(i).GetType() == typeof(DBNull) ? null : reader.GetValue(i);
                     property.SetValue(item, value);
                 }
@@ -259,10 +249,10 @@ namespace DewCore.DewDatabase.MySQL
         /// Perform a query
         /// </summary>
         /// <param name="query">Query</param>
-        /// <param name="values">List of binded values</param
+        /// <param name="values">ICollection of binded values</param
         /// <exception cref="MySqlException">MySqlException</exception>
-        /// <returns>List of array objects (rows)</returns>
-        public async Task<List<object[]>> QueryArrayAsync(string query, List<DbParameter> values = null)
+        /// <returns>ICollection of array objects (rows)</returns>
+        public async Task<ICollection<object[]>> QueryArrayAsync(string query, ICollection<DbParameter> values = null)
         {
             await this.SetConnectionState();
             if (DebugOn)
@@ -284,7 +274,7 @@ namespace DewCore.DewDatabase.MySQL
                     cmd.Parameters.Add(item);
                 }
             }
-            List<object[]> result = new List<object[]>();
+            ICollection<object[]> result = new List<object[]>();
             using (var reader = await cmd.ExecuteReaderAsync())
             {
                 while (await reader.ReadAsync())
@@ -321,7 +311,7 @@ namespace DewCore.DewDatabase.MySQL
         /// <param name="query"></param>
         /// <param name="values"></param>
         /// <returns></returns>
-        public async Task<IMySQLResponse> QueryAsync(string query, List<DbParameter> values = null)
+        public async Task<IMySQLResponse> QueryAsync(string query, ICollection<DbParameter> values = null)
         {
             await this.SetConnectionState();
             if (DebugOn)
@@ -357,11 +347,11 @@ namespace DewCore.DewDatabase.MySQL
         /// <param name="predicate"></param>
         /// <param name="tablePrefix"></param>
         /// <returns></returns>
-        public async Task<List<T>> Select<T>(Func<T, bool> predicate, string tablePrefix = null) where T : class, new()
+        public async Task<ICollection<T>> Select<T>(Func<T, bool> predicate, string tablePrefix = null) where T : class, new()
         {
             Type t = typeof(T);
             var response = await this.QueryAsync<T>($"SELECT * FROM {tablePrefix}{t.Name}");
-            return response.Where(predicate).ToList<T>();
+            return response.Where(predicate).ToList();
         }
         /// <summary>
         /// Select directly in LINQ. NOTE: T name must be the Table Name
@@ -369,7 +359,7 @@ namespace DewCore.DewDatabase.MySQL
         /// <typeparam name="T"></typeparam>
         /// <param name="tablePrefix"></param>
         /// <returns></returns>
-        public async Task<List<T>> Select<T>(string tablePrefix = null) where T : class, new()
+        public async Task<ICollection<T>> Select<T>(string tablePrefix = null) where T : class, new()
         {
             Type t = typeof(T);
             var response = await this.QueryAsync<T>($"SELECT * FROM {tablePrefix}{t.Name}");
@@ -388,7 +378,7 @@ namespace DewCore.DewDatabase.MySQL
             string name = tablePrefix + t.Name;
             string queryBefore = $"INSERT INTO {name} (";
             string queryAfter = ") VALUES (";
-            List<DbParameter> parameters = new List<DbParameter>();
+            ICollection<DbParameter> parameters = new List<DbParameter>();
             foreach (var item in t.GetRuntimeProperties())
             {
                 IEnumerable<Attribute> attributes = item.GetCustomAttributes();
@@ -416,7 +406,7 @@ namespace DewCore.DewDatabase.MySQL
             Type t = toDelete.GetType();
             string name = tablePrefix + t.Name;
             string query = $"DELETE FROM {name} WHERE ";
-            List<DbParameter> parameters = new List<DbParameter>();
+            ICollection<DbParameter> parameters = new List<DbParameter>();
             foreach (var item in t.GetRuntimeProperties())
             {
                 IEnumerable<Attribute> attributes = item.GetCustomAttributes();
@@ -442,7 +432,7 @@ namespace DewCore.DewDatabase.MySQL
             Type t = toUpdate.GetType();
             string name = tablePrefix + t.Name;
             string query = $"UPDATE {name} SET ";
-            List<DbParameter> parameters = new List<DbParameter>();
+            ICollection<DbParameter> parameters = new List<DbParameter>();
             foreach (var item in t.GetRuntimeProperties())
             {
                 IEnumerable<Attribute> attributes = item.GetCustomAttributes();
