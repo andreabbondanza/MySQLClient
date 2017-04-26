@@ -237,9 +237,12 @@ namespace DewCore.DewDatabase.MySQL
                 for (int i = 0; i < columns; i++)
                 {
                     var colName = reader.GetName(i);
-                    var property = properties.First((x) => { return x.Name == colName; });//NULLABLEEEEEEEEEEEEEEEEEEEEE
-                    var value = reader.GetValue(i).GetType() == typeof(DBNull) ? null : reader.GetValue(i);
-                    property.SetValue(item, value);
+                    var property = properties.FirstOrDefault((x) => { return x.Name == colName; });
+                    if (property != null)
+                    {
+                        var value = reader.GetValue(i).GetType() == typeof(DBNull) ? null : reader.GetValue(i);
+                        property.SetValue(item, value);
+                    }
                 }
                 result.Add(item);
             }
