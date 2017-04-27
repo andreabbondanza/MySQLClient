@@ -4,6 +4,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Threading;
 using MySql.Data.MySqlClient;
 using DewCore.DewLogger;
 using DewInterfaces.DewLogger;
@@ -33,6 +34,10 @@ namespace DewCore.DewDatabase.MySQL
         /// Transaction var
         /// </summary>
         private MySqlTransaction transiction = null;
+        ///<summary>
+        /// Cancellation token
+        ///</summary>
+        private CancellationToken cancellationToken = default(CancellationToken);
         /// <summary>
         /// Set logger
         /// </summary>
@@ -45,7 +50,7 @@ namespace DewCore.DewDatabase.MySQL
         /// Constructor
         /// </summary>
         /// <param name="connectionString"></param>
-        public MySQLClient(string connectionString)
+        public MySQLClient(string connectionString, CancellationToken cancellationToken = default(CancellationToken))
         {
             this.Db = new MySqlConnection(connectionString);
             if (DebugOn)
@@ -53,12 +58,13 @@ namespace DewCore.DewDatabase.MySQL
                 debugger.WriteLine("Connection to database:" + Db.Database);
                 debugger.WriteLine("With connection string:" + connectionString);
             }
+            this.cancellationToken = cancellationToken;
         }
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="connectionString"></param>
-        public MySQLClient(MySQLConnectionString connectionString)
+        public MySQLClient(MySQLConnectionString connectionString, CancellationToken cancellationToken = default(CancellationToken))
         {
             this.Db = new MySqlConnection(connectionString.GetConnectionString());
             if (DebugOn)
@@ -69,17 +75,20 @@ namespace DewCore.DewDatabase.MySQL
                 debugger.WriteLine("With host:" + connectionString.Host);
                 debugger.WriteLine("With port:" + connectionString.Port);
             }
+            this.cancellationToken = cancellationToken;
         }
         /// <summary>
-        /// Open a connectino
+        /// Open a connection
         /// </summary>
         /// <returns></returns>
-        private async Task OpenConnection()
+        public async Task OpenConnection()
         {
             try
             {
                 if (this.Db.State == ConnectionState.Closed || this.Db.State == ConnectionState.Broken)
-                    await this.Db.OpenAsync();
+                {
+                    await this.Db.OpenAsync(this.cancellationToken);
+                }
                 if (DebugOn)
                 {
                     debugger.WriteLine("Connection opened with:" + Db.Database);
@@ -113,21 +122,6 @@ namespace DewCore.DewDatabase.MySQL
             }
         }
         /// <summary>
-        /// Set the connection state based from onConnection attribute
-        /// </summary>
-        /// <returns></returns>
-        private async Task SetConnectionState()
-        {
-            if (this.Db.State != ConnectionState.Open)
-            {
-                await this.Db.OpenAsync();
-            }
-            else
-            {
-                await this.OpenConnection();
-            }
-        }
-        /// <summary>
         /// Begin a transaction
         /// </summary>
         /// <param name="isolationLevel"></param>
@@ -139,7 +133,7 @@ namespace DewCore.DewDatabase.MySQL
             {
                 await this.OpenConnection();
                 if (this.transiction == null)
-                    this.transiction = await Db.BeginTransactionAsync(isolationLevel);
+                    this.transiction = await Db.BeginTransactionAsync(isolationLevel, cancellationToken == null ? default(CancellationToken) : cancellationToken);
                 if (DebugOn)
                     debugger.WriteLine("Transactino started on:" + Db.Database);
 
@@ -163,7 +157,7 @@ namespace DewCore.DewDatabase.MySQL
                 throw new NoTransactionException();
             else
             {
-                await this.transiction.CommitAsync();
+                await this.transiction.CommitAsync(cancellationToken == null ? default(CancellationToken) : cancellationToken);
                 if (DebugOn)
                     debugger.WriteLine("Transaction commited on:" + Db.Database);
             }
@@ -188,7 +182,7 @@ namespace DewCore.DewDatabase.MySQL
         /// <returns>ICollection of T objects (rows)</returns>
         public async Task<ICollection<T>> QueryAsync<T>(string query, ICollection<DbParameter> values = null) where T : class, new()
         {
-            await this.SetConnectionState();
+            await this.OpenConnection();
             if (DebugOn)
             {
                 debugger.WriteLine("Executing query: " + query);
@@ -211,7 +205,7 @@ namespace DewCore.DewDatabase.MySQL
                         cmd.Parameters.Add(item);
                     }
                 }
-                using (var reader = await cmd.ExecuteReaderAsync())
+                using (var reader = await cmd.ExecuteReaderAsync(cancellationToken == null ? default(CancellationToken) : cancellationToken))
                 {
                     result = await this.SetFields<T>(reader);
                 }
@@ -257,7 +251,7 @@ namespace DewCore.DewDatabase.MySQL
         /// <returns>ICollection of array objects (rows)</returns>
         public async Task<ICollection<object[]>> QueryArrayAsync(string query, ICollection<DbParameter> values = null)
         {
-            await this.SetConnectionState();
+            await this.OpenConnection();
             if (DebugOn)
             {
                 debugger.WriteLine("Executing query: " + query);
@@ -278,7 +272,7 @@ namespace DewCore.DewDatabase.MySQL
                 }
             }
             ICollection<object[]> result = new List<object[]>();
-            using (var reader = await cmd.ExecuteReaderAsync())
+            using (var reader = await cmd.ExecuteReaderAsync(cancellationToken == null ? default(CancellationToken) : cancellationToken))
             {
                 while (await reader.ReadAsync())
                 {
@@ -303,7 +297,7 @@ namespace DewCore.DewDatabase.MySQL
                 throw new NoTransactionException();
             else
             {
-                await this.transiction.RollbackAsync();
+                await this.transiction.RollbackAsync(cancellationToken == null ? default(CancellationToken) : cancellationToken);
                 if (DebugOn)
                     debugger.WriteLine("Transaction rollbacked on:" + Db.Database);
             }
@@ -316,7 +310,7 @@ namespace DewCore.DewDatabase.MySQL
         /// <returns></returns>
         public async Task<IMySQLResponse> QueryAsync(string query, ICollection<DbParameter> values = null)
         {
-            await this.SetConnectionState();
+            await this.OpenConnection();
             if (DebugOn)
             {
                 debugger.WriteLine("Executing query: " + query);
@@ -337,7 +331,7 @@ namespace DewCore.DewDatabase.MySQL
                 }
             }
             int affectedRows = 0;
-            using (var reader = await cmd.ExecuteReaderAsync())
+            using (var reader = await cmd.ExecuteReaderAsync(cancellationToken == null ? default(CancellationToken) : cancellationToken))
             {
                 affectedRows = reader.RecordsAffected;
             }
