@@ -291,7 +291,7 @@ namespace DewCore.DewDatabase.MySQL
         /// </summary>
         /// <exception cref="NoTransactionException">No transaction initialized</exception>
         /// <returns></returns>
-        public async Task RoolbackAsync()
+        public async Task RollbackAsync()
         {
             if (transiction == null)
                 throw new NoTransactionException();

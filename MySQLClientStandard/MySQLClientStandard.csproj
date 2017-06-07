@@ -16,14 +16,14 @@
     <PackageIconUrl>http://andrewdev.eu/wp-content/uploads/2016/08/OnlyLogo.png</PackageIconUrl>
     <Version>2.1.0</Version>
     <PackageReleaseNotes>Changed response from List to ICollection, added simplified methods for queries</PackageReleaseNotes>
-    <AssemblyVersion>2.1.0.0</AssemblyVersion>
-    <FileVersion>2.1.0.0</FileVersion>
+    <AssemblyVersion>2.1.1.0</AssemblyVersion>
+    <FileVersion>2.1.1.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DewInterfaces" Version="1.1.1" />
-    <PackageReference Include="DewLogger" Version="1.0.12" />
-    <PackageReference Include="MySqlConnector" Version="0.19.1" />
+    <PackageReference Include="DewInterfaces" Version="1.2.1" />
+    <PackageReference Include="DewLogger" Version="1.1.0" />
+    <PackageReference Include="MySqlConnector" Version="0.20.1" />
   </ItemGroup>
 
 </Project>
