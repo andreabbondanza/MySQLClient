@@ -1,15 +1,15 @@
-﻿using System;
+﻿using DewCore.DewLogger;
+using DewInterfaces.DewDatabase.MySQL;
+using DewInterfaces.DewLogger;
+using MySql.Data.MySqlClient;
+using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Threading;
-using MySql.Data.MySqlClient;
-using DewCore.DewLogger;
-using DewInterfaces.DewLogger;
-using DewInterfaces.DewDatabase.MySQL;
-using System.Data.Common;
+using System.Threading.Tasks;
 
 namespace DewCore.DewDatabase.MySQL
 {
@@ -331,11 +331,13 @@ namespace DewCore.DewDatabase.MySQL
                 }
             }
             int affectedRows = 0;
+            int fieldcount = 0;
             using (var reader = await cmd.ExecuteReaderAsync(cancellationToken == null ? default(CancellationToken) : cancellationToken))
             {
                 affectedRows = reader.RecordsAffected;
+                fieldcount = reader.FieldCount;
             }
-            return new MySQLResponse(cmd.LastInsertedId, affectedRows);
+            return new MySQLResponse(cmd.LastInsertedId, affectedRows, fieldcount);
         }
         /// <summary>
         /// Select directly in LINQ. NOTE: T name must be the Table Name

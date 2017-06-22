@@ -26,6 +26,10 @@
         /// </summary>
         public readonly string Password;
         /// <summary>
+        /// Other flags
+        /// </summary>
+        public readonly string OtherFlags;
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="host">server address</param>
@@ -33,13 +37,14 @@
         /// <param name="database">database name</param>
         /// <param name="user">username</param>
         /// <param name="password">password</param>
-        public MySQLConnectionString(string host, string port, string database, string user, string password)
+        public MySQLConnectionString(string host, string port, string database, string user, string password, string otherFlags = null)
         {
             this.Host = host;
             this.Port = port;
             this.Database = database;
             this.User = user;
             this.Password = password;
+            this.OtherFlags = otherFlags;
         }
         /// <summary>
         /// Return the current parameters connection string
@@ -47,7 +52,7 @@
         /// <returns></returns>
         public string GetConnectionString()
         {
-            return @"host=" + this.Host + ";port=" + this.Port + ";user id=" + this.User + ";password=" + this.Password + ";database=" + this.Database + ";";
+            return @"host=" + this.Host + ";port=" + this.Port + ";user id=" + this.User + ";password=" + this.Password + ";database=" + this.Database + ";" + OtherFlags;
         }
     }
 }
