@@ -381,7 +381,7 @@ namespace DewCore.DewDatabase.MySQL
             foreach (var item in t.GetRuntimeProperties())
             {
                 IEnumerable<Attribute> attributes = item.GetCustomAttributes();
-                if (attributes.FirstOrDefault(x => x.GetType() == typeof(IgnoreInsert)) == default(Attribute))
+                if (attributes.FirstOrDefault(x => x.GetType() == typeof(IgnoreInsert)) == default(Attribute) && attributes.FirstOrDefault(x => x.GetType() == typeof(NoColumn)) == default(Attribute))
                 {
                     queryBefore += item.Name + ",";
                     queryAfter += $"@{item.Name.ToLower()},";
@@ -409,13 +409,13 @@ namespace DewCore.DewDatabase.MySQL
             foreach (var item in t.GetRuntimeProperties())
             {
                 IEnumerable<Attribute> attributes = item.GetCustomAttributes();
-                if (attributes.FirstOrDefault(x => x.GetType() == typeof(CheckDelete)) != default(Attribute))
+                if (attributes.FirstOrDefault(x => x.GetType() == typeof(CheckDelete)) != default(Attribute) && attributes.FirstOrDefault(x => x.GetType() == typeof(NoColumn)) == default(Attribute))
                 {
-                    query += item.Name + $"=@{item.Name.ToLower()} AND ";
+                    query += item.Name + $"=@{item.Name.ToLower()} AND  ";
                     parameters.Add(new MySqlParameter() { ParameterName = $"@{item.Name.ToLower()}", Value = item.GetValue(toDelete) });
                 }
             }
-            query = query.Substring(0, query.Length - 5);
+            query = query.Substring(0, query.Length - 6);
             return await QueryAsync(query, parameters);
         }
         /// <summary>
@@ -435,7 +435,7 @@ namespace DewCore.DewDatabase.MySQL
             foreach (var item in t.GetRuntimeProperties())
             {
                 IEnumerable<Attribute> attributes = item.GetCustomAttributes();
-                if (attributes.FirstOrDefault(x => x.GetType() == typeof(IgnoreUpdate)) == default(Attribute))
+                if (attributes.FirstOrDefault(x => x.GetType() == typeof(IgnoreUpdate)) == default(Attribute) && attributes.FirstOrDefault(x => x.GetType() == typeof(NoColumn)) == default(Attribute))
                 {
                     query += item.Name + $"=@{item.Name.ToLower()},";
                     parameters.Add(new MySqlParameter() { ParameterName = $"@{item.Name.ToLower()}", Value = item.GetValue(toUpdate) });
@@ -445,13 +445,13 @@ namespace DewCore.DewDatabase.MySQL
             foreach (var item in t.GetRuntimeProperties())
             {
                 IEnumerable<Attribute> attributes = item.GetCustomAttributes();
-                if (attributes.FirstOrDefault(x => x.GetType() == typeof(CheckUpdate)) != default(Attribute))
+                if (attributes.FirstOrDefault(x => x.GetType() == typeof(CheckUpdate)) != default(Attribute) && attributes.FirstOrDefault(x => x.GetType() == typeof(NoColumn)) == default(Attribute))
                 {
-                    query += item.Name + $"=@u{item.Name.ToLower()} AND ";
+                    query += item.Name + $"=@u{item.Name.ToLower()} AND  ";
                     parameters.Add(new MySqlParameter() { ParameterName = $"@u{item.Name.ToLower()}", Value = item.GetValue(toFind) });
                 }
             }
-            query = query.Substring(0, query.Length - 5);
+            query = query.Substring(0, query.Length - 6);
             return await QueryAsync(query, parameters);
         }
     }
