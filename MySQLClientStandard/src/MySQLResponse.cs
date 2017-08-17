@@ -1,5 +1,4 @@
-﻿using System;
-using DewInterfaces.DewDatabase.MySQL;
+﻿using DewInterfaces.DewDatabase.MySQL;
 
 namespace DewCore.DewDatabase.MySQL
 {
@@ -17,14 +16,24 @@ namespace DewCore.DewDatabase.MySQL
         /// </summary>
         private readonly long RowsAffected;
         /// <summary>
+        /// Number of rows affected for the query
+        /// </summary>
+        private readonly int FieldCount;
+        /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="lastInsertId"></param>
         /// <param name="rowsAffected"></param>
-        public MySQLResponse(long lastInsertId, long rowsAffected)
+        public MySQLResponse(long lastInsertId, long rowsAffected, int fieldCount)
         {
             LastInsertId = lastInsertId;
             RowsAffected = rowsAffected;
+            FieldCount = fieldCount;
+        }
+
+        public int GetFieldCount()
+        {
+            return this.FieldCount;
         }
 
         public long GetLastInsertedId()
