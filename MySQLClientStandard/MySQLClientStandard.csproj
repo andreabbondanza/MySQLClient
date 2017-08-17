@@ -21,9 +21,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DewInterfaces" Version="1.1.1" />
-    <PackageReference Include="DewLogger" Version="1.0.12" />
-    <PackageReference Include="MySqlConnector" Version="0.19.1" />
+    <PackageReference Include="DewLogger" Version="1.1.1" />
+    <PackageReference Include="MySqlConnector" Version="0.25.0" />
   </ItemGroup>
 
 </Project>
