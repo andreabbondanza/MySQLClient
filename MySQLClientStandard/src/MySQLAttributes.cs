@@ -35,7 +35,7 @@ namespace DewCore.DewDatabase.MySQL
 
     }
     /// <summary>
-    /// This property isn't on database
+    /// This property isn't on database table
     /// </summary>
     [System.AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
     public sealed class NoColumn : Attribute

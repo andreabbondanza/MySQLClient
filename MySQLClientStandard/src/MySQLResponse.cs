@@ -1,4 +1,4 @@
-﻿using DewInterfaces.DewDatabase.MySQL;
+﻿using DewCore.DewDatabase.MySQL.Interfaces;
 
 namespace DewCore.DewDatabase.MySQL
 {

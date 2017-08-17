@@ -1,4 +1,4 @@
-﻿namespace DewCore.DewDatabase.MySQL
+﻿namespace DewCore.DewDatabase.MySQL.Enums
 {
 
 }

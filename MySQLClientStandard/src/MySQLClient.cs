@@ -1,6 +1,6 @@
-﻿using DewCore.DewLogger;
-using DewInterfaces.DewDatabase.MySQL;
-using DewInterfaces.DewLogger;
+﻿using DewCore.DewDatabase.MySQL.Interfaces;
+using DewCore.DewLogger;
+using DewLogger.Interfaces;
 using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
@@ -409,7 +409,7 @@ namespace DewCore.DewDatabase.MySQL
             foreach (var item in t.GetRuntimeProperties())
             {
                 IEnumerable<Attribute> attributes = item.GetCustomAttributes();
-                if (attributes.FirstOrDefault(x => x.GetType() == typeof(CheckDelete)) != default(Attribute) && attributes.FirstOrDefault(x => x.GetType() == typeof(NoColumn)) == default(Attribute))
+                if (attributes.FirstOrDefault(x => x.GetType() == typeof(CheckDelete)) != default(Attribute))
                 {
                     query += item.Name + $"=@{item.Name.ToLower()} AND  ";
                     parameters.Add(new MySqlParameter() { ParameterName = $"@{item.Name.ToLower()}", Value = item.GetValue(toDelete) });
@@ -445,7 +445,7 @@ namespace DewCore.DewDatabase.MySQL
             foreach (var item in t.GetRuntimeProperties())
             {
                 IEnumerable<Attribute> attributes = item.GetCustomAttributes();
-                if (attributes.FirstOrDefault(x => x.GetType() == typeof(CheckUpdate)) != default(Attribute) && attributes.FirstOrDefault(x => x.GetType() == typeof(NoColumn)) == default(Attribute))
+                if (attributes.FirstOrDefault(x => x.GetType() == typeof(CheckUpdate)) != default(Attribute))
                 {
                     query += item.Name + $"=@u{item.Name.ToLower()} AND  ";
                     parameters.Add(new MySqlParameter() { ParameterName = $"@u{item.Name.ToLower()}", Value = item.GetValue(toFind) });
