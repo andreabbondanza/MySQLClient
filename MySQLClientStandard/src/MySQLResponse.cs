@@ -1,6 +1,6 @@
-﻿using DewCore.DewDatabase.MySQL.Interfaces;
+﻿using DewCore.Abstract.Database.MySQL;
 
-namespace DewCore.DewDatabase.MySQL
+namespace DewCore.Database.MySQL
 {
     /// <summary>
     /// MySQLClient response object (for update,insert,delete)

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace DewCore.DewDatabase.MySQL
+namespace DewCore.Database.MySQL
 {
     /// <summary>
     /// Ignore this attribute when you are in the insert query

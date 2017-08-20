@@ -1,4 +1,4 @@
-﻿using DewCore.DewDatabase.MySQL.Interfaces;
+﻿using DewCore.Abstract.Database.MySQL;
 using DewCore.DewLogger;
 using DewLogger.Interfaces;
 using MySql.Data.MySqlClient;
@@ -11,7 +11,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace DewCore.DewDatabase.MySQL
+namespace DewCore.Database.MySQL
 {
     /// <summary>
     /// Client
@@ -33,7 +33,7 @@ namespace DewCore.DewDatabase.MySQL
         /// <summary>
         /// Transaction var
         /// </summary>
-        private MySqlTransaction transiction = null;
+        private MySqlTransaction transaction = null;
         ///<summary>
         /// Cancellation token
         ///</summary>
@@ -78,29 +78,6 @@ namespace DewCore.DewDatabase.MySQL
             this.cancellationToken = cancellationToken;
         }
         /// <summary>
-        /// Open a connection
-        /// </summary>
-        /// <returns></returns>
-        public async Task OpenConnection()
-        {
-            try
-            {
-                if (this.Db.State == ConnectionState.Closed || this.Db.State == ConnectionState.Broken)
-                {
-                    await this.Db.OpenAsync(this.cancellationToken);
-                }
-                if (DebugOn)
-                {
-                    debugger.WriteLine("Connection opened with:" + Db.Database);
-                }
-            }
-            catch (Exception exc)
-            {
-                if (DebugOn)
-                    debugger.WriteLine("Exception with open connection:" + exc.Message);
-            }
-        }
-        /// <summary>
         /// Close Connection
         /// </summary>
         public void CloseConnection()
@@ -131,9 +108,9 @@ namespace DewCore.DewDatabase.MySQL
             bool result = true;
             try
             {
-                await this.OpenConnection();
-                if (this.transiction == null)
-                    this.transiction = await Db.BeginTransactionAsync(isolationLevel, cancellationToken == null ? default(CancellationToken) : cancellationToken);
+                await this.OpenConnectionAsync();
+                if (this.transaction == null)
+                    this.transaction = await Db.BeginTransactionAsync(isolationLevel, cancellationToken == null ? default(CancellationToken) : cancellationToken);
                 if (DebugOn)
                     debugger.WriteLine("Transactino started on:" + Db.Database);
 
@@ -153,11 +130,11 @@ namespace DewCore.DewDatabase.MySQL
         /// <returns></returns>
         public async Task CommitAsync()
         {
-            if (transiction == null)
+            if (transaction == null)
                 throw new NoTransactionException();
             else
             {
-                await this.transiction.CommitAsync(cancellationToken == null ? default(CancellationToken) : cancellationToken);
+                await this.transaction.CommitAsync(cancellationToken == null ? default(CancellationToken) : cancellationToken);
                 if (DebugOn)
                     debugger.WriteLine("Transaction commited on:" + Db.Database);
             }
@@ -182,7 +159,7 @@ namespace DewCore.DewDatabase.MySQL
         /// <returns>ICollection of T objects (rows)</returns>
         public async Task<ICollection<T>> QueryAsync<T>(string query, ICollection<DbParameter> values = null) where T : class, new()
         {
-            await this.OpenConnection();
+            await this.OpenConnectionAsync();
             if (DebugOn)
             {
                 debugger.WriteLine("Executing query: " + query);
@@ -251,7 +228,7 @@ namespace DewCore.DewDatabase.MySQL
         /// <returns>ICollection of array objects (rows)</returns>
         public async Task<ICollection<object[]>> QueryArrayAsync(string query, ICollection<DbParameter> values = null)
         {
-            await this.OpenConnection();
+            await this.OpenConnectionAsync();
             if (DebugOn)
             {
                 debugger.WriteLine("Executing query: " + query);
@@ -293,11 +270,11 @@ namespace DewCore.DewDatabase.MySQL
         /// <returns></returns>
         public async Task RollbackAsync()
         {
-            if (transiction == null)
+            if (transaction == null)
                 throw new NoTransactionException();
             else
             {
-                await this.transiction.RollbackAsync(cancellationToken == null ? default(CancellationToken) : cancellationToken);
+                await this.transaction.RollbackAsync(cancellationToken == null ? default(CancellationToken) : cancellationToken);
                 if (DebugOn)
                     debugger.WriteLine("Transaction rollbacked on:" + Db.Database);
             }
@@ -310,7 +287,7 @@ namespace DewCore.DewDatabase.MySQL
         /// <returns></returns>
         public async Task<IMySQLResponse> QueryAsync(string query, ICollection<DbParameter> values = null)
         {
-            await this.OpenConnection();
+            await this.OpenConnectionAsync();
             if (DebugOn)
             {
                 debugger.WriteLine("Executing query: " + query);
@@ -421,12 +398,12 @@ namespace DewCore.DewDatabase.MySQL
         /// <summary>
         /// Update a row into the T table.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T1"></typeparam>
         /// <param name="toFind">The searched row</param>
         /// <param name="toUpdate">the row</param>
         /// <param name="tablePrefix">a table prefix if exists</param>
         /// <returns></returns>
-        public async Task<IMySQLResponse> UpdateAsync<T>(T toFind, T toUpdate, string tablePrefix = null) where T : class
+        public async Task<IMySQLResponse> UpdateAsync<T1>(T1 toFind, T1 toUpdate, string tablePrefix = null) where T1 : class
         {
             Type t = toUpdate.GetType();
             string name = tablePrefix + t.Name;
@@ -453,6 +430,42 @@ namespace DewCore.DewDatabase.MySQL
             }
             query = query.Substring(0, query.Length - 6);
             return await QueryAsync(query, parameters);
+        }
+
+        public async Task OpenConnectionAsync()
+        {
+            try
+            {
+                if (this.Db.State == ConnectionState.Closed || this.Db.State == ConnectionState.Broken)
+                {
+                    await this.Db.OpenAsync(this.cancellationToken);
+                }
+                if (DebugOn)
+                {
+                    debugger.WriteLine("Connection opened with:" + Db.Database);
+                }
+            }
+            catch (Exception exc)
+            {
+                if (DebugOn)
+                    debugger.WriteLine("Exception with open connection:" + exc.Message);
+            }
+        }
+        /// <summary>
+        /// You should use OpenConnectionAsync
+        /// </summary>
+        public void OpenConnection()
+        {
+            this.OpenConnectionAsync().Wait();
+        }
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <exception cref="NotImplementedException"></exception>
+        /// <returns></returns>
+        public Task CloseConnectionAsync()
+        {
+            throw new NotImplementedException();
         }
     }
 }
