@@ -1,4 +1,5 @@
-﻿using DewCore.Abstract.Database.MySQL;
+﻿using DewCore.Abstract.Database;
+using DewCore.Abstract.Database.MySQL;
 using DewCore.DewLogger;
 using DewLogger.Interfaces;
 using MySql.Data.MySqlClient;

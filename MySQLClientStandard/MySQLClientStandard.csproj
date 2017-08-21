@@ -14,14 +14,14 @@
     <PackageTags>MySQL .net standard</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageIconUrl>http://andrewdev.eu/wp-content/uploads/2016/08/OnlyLogo.png</PackageIconUrl>
-    <Version>2.3.0</Version>
-    <PackageReleaseNotes>Namespace refactoring</PackageReleaseNotes>
-    <AssemblyVersion>2.3.0.0</AssemblyVersion>
-    <FileVersion>2.3.3.0</FileVersion>
+    <Version>2.3.1</Version>
+    <PackageReleaseNotes></PackageReleaseNotes>
+    <AssemblyVersion>2.3.1.0</AssemblyVersion>
+    <FileVersion>2.3.1.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DewDatabaseAbstracat" Version="1.0.2" />
+    <PackageReference Include="DewDatabaseAbstracat" Version="1.1.0" />
     <PackageReference Include="DewLogger" Version="1.1.1" />
     <PackageReference Include="MySqlConnector" Version="0.25.1" />
   </ItemGroup>
