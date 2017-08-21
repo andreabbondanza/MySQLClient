@@ -240,26 +240,28 @@ namespace DewCore.Database.MySQL
                         debugger.WriteLine("Type:{0}, value:{1}, paramName:{2} | ", new object[] { item.DbType, item.Value, item.ParameterName });
                     }
             }
-            var cmd = Db.CreateCommand() as MySqlCommand;
-            cmd.CommandText = query;
-            if (values != null)
-            {
-                foreach (var item in values)
-                {
-                    cmd.Parameters.Add(item);
-                }
-            }
             ICollection<object[]> result = new List<object[]>();
-            using (var reader = await cmd.ExecuteReaderAsync(_cancellationToken == null ? default(CancellationToken) : _cancellationToken))
+            using (var cmd = Db.CreateCommand() as MySqlCommand)
             {
-                while (await reader.ReadAsync())
+                cmd.CommandText = query;
+                if (values != null)
                 {
-                    object[] item = new object[reader.FieldCount];
-                    for (int i = 0; i < reader.FieldCount; i++)
+                    foreach (var item in values)
                     {
-                        item[i] = reader.GetValue(i);
+                        cmd.Parameters.Add(item);
                     }
-                    result.Add(item);
+                }
+                using (var reader = await cmd.ExecuteReaderAsync(_cancellationToken == null ? default(CancellationToken) : _cancellationToken))
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        object[] item = new object[reader.FieldCount];
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            item[i] = reader.GetValue(i);
+                        }
+                        result.Add(item);
+                    }
                 }
             }
             return result;
@@ -299,23 +301,28 @@ namespace DewCore.Database.MySQL
                         debugger.WriteLine("Type:{0}, value:{1}, paramName:{2} | ", new object[] { item.DbType, item.Value, item.ParameterName });
                     }
             }
-            var cmd = Db.CreateCommand() as MySqlCommand;
-            cmd.CommandText = query;
-            if (values != null)
-            {
-                foreach (var item in values)
-                {
-                    cmd.Parameters.Add(item);
-                }
-            }
             int affectedRows = 0;
             int fieldcount = 0;
-            using (var reader = await cmd.ExecuteReaderAsync(_cancellationToken == null ? default(CancellationToken) : _cancellationToken))
+            long lastInsertID = 0;
+            using (var cmd = Db.CreateCommand() as MySqlCommand)
             {
-                affectedRows = reader.RecordsAffected;
-                fieldcount = reader.FieldCount;
+                cmd.CommandText = query;
+                if (values != null)
+                {
+                    foreach (var item in values)
+                    {
+                        cmd.Parameters.Add(item);
+                    }
+                }
+
+                using (var reader = await cmd.ExecuteReaderAsync(_cancellationToken == null ? default(CancellationToken) : _cancellationToken))
+                {
+                    affectedRows = reader.RecordsAffected;
+                    fieldcount = reader.FieldCount;
+                }
+                lastInsertID = cmd.LastInsertedId;
             }
-            return new MySQLResponse(cmd.LastInsertedId, affectedRows, fieldcount);
+            return new MySQLResponse(lastInsertID, affectedRows, fieldcount);
         }
         /// <summary>
         /// Select directly in LINQ. NOTE: T name must be the Table Name
@@ -432,7 +439,10 @@ namespace DewCore.Database.MySQL
             query = query.Substring(0, query.Length - 6);
             return await QueryAsync(query, parameters);
         }
-
+        /// <summary>
+        /// Open connection with database
+        /// </summary>
+        /// <returns></returns>
         public async Task OpenConnectionAsync()
         {
             try
