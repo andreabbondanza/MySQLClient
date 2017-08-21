@@ -1,9 +1,11 @@
-﻿namespace DewCore.Database.MySQL
+﻿using DewCore.Abstract.Database;
+
+namespace DewCore.Database.MySQL
 {
     /// <summary>
     /// MySQL connection string
     /// </summary>
-    public class MySQLConnectionString
+    public class MySQLConnectionString : IConnectionString
     {
         /// <summary>
         /// server address
