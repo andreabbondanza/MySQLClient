@@ -358,6 +358,7 @@ namespace DewCore.Database.MySQL
         /// <returns></returns>
         public async Task<IMySQLResponse> InsertAsync<T>(T newRow, string tablePrefix = null) where T : class
         {
+            IMySQLResponse result = null;
             Type t = newRow.GetType();
             string name = tablePrefix + t.Name;
             string queryBefore = $"INSERT INTO {name} (";
@@ -376,6 +377,24 @@ namespace DewCore.Database.MySQL
             queryBefore = queryBefore.Substring(0, queryBefore.Length - 1);
             queryAfter = queryAfter.Substring(0, queryAfter.Length - 1) + ")";
             string query = queryBefore + queryAfter;
+            try
+            {
+                if (newRow is IDatabaseTable)
+                {
+                    var temp = newRow as IDatabaseTable;
+                    if (!temp.CheckConstarints())
+                        result = await QueryAsync(query, parameters);
+                    else
+                        result = new MySQLResponse(-1, -1, -1, new DatabaseError("Class constraint failed", 0));
+                }
+                else
+                    result = await QueryAsync(query, parameters);
+            }
+            catch (Exception e)
+            {
+                result = new MySQLResponse(-1, -1, -1, new DatabaseError(e.Message, e.HResult));
+            }
+            return result;
             return await QueryAsync(query, parameters);
         }
         /// <summary>
@@ -387,6 +406,7 @@ namespace DewCore.Database.MySQL
         /// <returns></returns>
         public async Task<IMySQLResponse> DeleteAsync<T>(T toDelete, string tablePrefix = null) where T : class
         {
+            IMySQLResponse result = null;
             Type t = toDelete.GetType();
             string name = tablePrefix + t.Name;
             string query = $"DELETE FROM {name} WHERE ";
@@ -401,7 +421,82 @@ namespace DewCore.Database.MySQL
                 }
             }
             query = query.Substring(0, query.Length - 6);
-            return await QueryAsync(query, parameters);
+            try
+            {
+                if (toDelete is IDatabaseTable)
+                {
+                    var temp = toDelete as IDatabaseTable;
+                    if (!temp.CheckConstarints())
+                        result = await QueryAsync(query, parameters);
+                    else
+                        result = new MySQLResponse(-1, -1, -1, new DatabaseError("Class constraint failed", 0));
+                }
+                else
+                    result = await QueryAsync(query, parameters);
+            }
+            catch (Exception e)
+            {
+                result = new MySQLResponse(-1, -1, -1, new DatabaseError(e.Message, e.HResult));
+            }
+            return result;
+        }
+        /// <summary>
+        /// Update T into database with list to ignore
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="toFind"></param>
+        /// <param name="toUpdate"></param>
+        /// <param name="toIgnore"></param>
+        /// <param name="tablePrefix"></param>
+        /// <returns></returns>
+        public async Task<IMySQLResponse> UpdateAsync<T>(T toFind, T toUpdate, List<string> toIgnore, string tablePrefix = null) where T : class
+        {
+            IMySQLResponse result = null;
+            Type t = toUpdate.GetType();
+            string name = tablePrefix + t.Name;
+            string query = $"UPDATE {name} SET ";
+            ICollection<DbParameter> parameters = new List<DbParameter>();
+            foreach (var item in t.GetRuntimeProperties())
+            {
+                IEnumerable<Attribute> attributes = item.GetCustomAttributes();
+                if (attributes.FirstOrDefault(x => x.GetType() == typeof(IgnoreUpdate)) == default(Attribute) && attributes.FirstOrDefault(x => x.GetType() == typeof(NoColumn)) == default(Attribute))
+                {
+                    if (!toIgnore.Contains(item.Name))
+                    {
+                        query += item.Name + $"=@{item.Name.ToLower()},";
+                        parameters.Add(new MySqlParameter() { ParameterName = $"@{item.Name.ToLower()}", Value = item.GetValue(toUpdate) });
+                    }
+                }
+            }
+            query = query.Substring(0, query.Length - 1) + " WHERE ";
+            foreach (var item in t.GetRuntimeProperties())
+            {
+                IEnumerable<Attribute> attributes = item.GetCustomAttributes();
+                if (attributes.FirstOrDefault(x => x.GetType() == typeof(CheckUpdate)) != default(Attribute))
+                {
+                    query += item.Name + $"=@u{item.Name.ToLower()} AND  ";
+                    parameters.Add(new MySqlParameter() { ParameterName = $"@u{item.Name.ToLower()}", Value = item.GetValue(toFind) });
+                }
+            }
+            query = query.Substring(0, query.Length - 6);
+            try
+            {
+                if (toUpdate is IDatabaseTable)
+                {
+                    var temp = toUpdate as IDatabaseTable;
+                    if (!temp.CheckConstarints())
+                        result = await QueryAsync(query, parameters);
+                    else
+                        result = new MySQLResponse(-1, -1, -1, new DatabaseError("Class constraint failed", 0));
+                }
+                else
+                    result = await QueryAsync(query, parameters);
+            }
+            catch (Exception e)
+            {
+                result = new MySQLResponse(-1, -1, -1, new DatabaseError(e.Message, e.HResult));
+            }
+            return result;
         }
         /// <summary>
         /// Update a row into the T table.
@@ -413,6 +508,7 @@ namespace DewCore.Database.MySQL
         /// <returns></returns>
         public async Task<IMySQLResponse> UpdateAsync<T1>(T1 toFind, T1 toUpdate, string tablePrefix = null) where T1 : class
         {
+            IMySQLResponse result = null;
             Type t = toUpdate.GetType();
             string name = tablePrefix + t.Name;
             string query = $"UPDATE {name} SET ";
@@ -437,7 +533,24 @@ namespace DewCore.Database.MySQL
                 }
             }
             query = query.Substring(0, query.Length - 6);
-            return await QueryAsync(query, parameters);
+            try
+            {
+                if (toUpdate is IDatabaseTable)
+                {
+                    var temp = toUpdate as IDatabaseTable;
+                    if (!temp.CheckConstarints())
+                        result = await QueryAsync(query, parameters);
+                    else
+                        result = new MySQLResponse(-1, -1, -1, new DatabaseError("Class constraint failed", 0));
+                }
+                else
+                    result = await QueryAsync(query, parameters);
+            }
+            catch (Exception e)
+            {
+                result = new MySQLResponse(-1, -1, -1, new DatabaseError(e.Message, e.HResult));
+            }
+            return result;
         }
         /// <summary>
         /// Open connection with database

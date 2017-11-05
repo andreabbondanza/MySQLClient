@@ -21,5 +21,11 @@ namespace DewCore.Abstract.Database.MySQL
     public interface IMySQLClient : IDatabaseClient<IMySQLResponse>
     {
 
+    }/// <summary>
+     /// MySQL Table interface
+     /// </summary>
+    public interface IMySQLTable : IDatabaseTable
+    {
+
     }
 }
