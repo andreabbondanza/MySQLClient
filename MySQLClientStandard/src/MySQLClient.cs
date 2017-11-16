@@ -267,6 +267,52 @@ namespace DewCore.Database.MySQL
             return result;
         }
         /// <summary>
+        /// Perform a query and return a dictionary where keys are columns names
+        /// </summary>
+        /// <param name="query">Query</param>
+        /// <param name="values">ICollection of binded values</param
+        /// <exception cref="MySqlException">MySqlException</exception>
+        /// <returns>ICollection of array objects (rows)</returns>
+        public async Task<ICollection<Dictionary<string, object>>> QueryDictionaryAsync(string query, ICollection<DbParameter> values = null)
+        {
+            await OpenConnectionAsync();
+            if (DebugOn)
+            {
+                debugger.WriteLine("Executing query: " + query);
+                debugger.WriteLine("With params: ");
+                if (values != null)
+                    foreach (var item in values)
+                    {
+                        debugger.WriteLine("Type:{0}, value:{1}, paramName:{2} | ", new object[] { item.DbType, item.Value, item.ParameterName });
+                    }
+            }
+            ICollection<Dictionary<string, object>> result = new List<Dictionary<string, object>>();
+            using (var cmd = Db.CreateCommand() as MySqlCommand)
+            {
+                cmd.CommandText = query;
+                if (values != null)
+                {
+                    foreach (var item in values)
+                    {
+                        cmd.Parameters.Add(item);
+                    }
+                }
+                using (var reader = await cmd.ExecuteReaderAsync(_cancellationToken == null ? default(CancellationToken) : _cancellationToken))
+                {
+                    while (await reader.ReadAsync())
+                    {
+                        Dictionary<string, object> item = new Dictionary<string, object>();
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            item.Add(reader.GetName(i), reader.GetValue(i));
+                        }
+                        result.Add(item);
+                    }
+                }
+            }
+            return result;
+        }
+        /// <summary>
         /// Execute roolback
         /// </summary>
         /// <exception cref="NoTransactionException">No transaction initialized</exception>
