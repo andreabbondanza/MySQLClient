@@ -14,16 +14,17 @@
     <PackageTags>MySQL .net standard</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageIconUrl>http://andrewdev.eu/wp-content/uploads/2016/08/OnlyLogo.png</PackageIconUrl>
-    <Version>2.5.0</Version>
-    <PackageReleaseNotes>Added dictionary query</PackageReleaseNotes>
+    <Version>2.5.1</Version>
+    <PackageReleaseNotes>Added connector to 0.33.x</PackageReleaseNotes>
     <AssemblyVersion>2.5.0.0</AssemblyVersion>
     <FileVersion>2.5.0.0</FileVersion>
+    <NeutralLanguage></NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="DewDatabaseAbstracat" Version="1.6.0" />
     <PackageReference Include="DewLogger" Version="2.0.0" />
-    <PackageReference Include="MySqlConnector" Version="0.31.0" />
+    <PackageReference Include="MySqlConnector" Version="0.33.1" />
   </ItemGroup>
 
 </Project>
