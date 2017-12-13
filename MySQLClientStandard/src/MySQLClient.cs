@@ -176,6 +176,8 @@ namespace DewCore.Database.MySQL
             {
 
                 cmd.CommandText = query;
+                if (_transaction != null)
+                    cmd.Transaction = _transaction;
                 if (values != null)
                 {
                     foreach (var item in values)
@@ -244,6 +246,8 @@ namespace DewCore.Database.MySQL
             using (var cmd = Db.CreateCommand() as MySqlCommand)
             {
                 cmd.CommandText = query;
+                if (_transaction != null)
+                    cmd.Transaction = _transaction;
                 if (values != null)
                 {
                     foreach (var item in values)
@@ -290,6 +294,8 @@ namespace DewCore.Database.MySQL
             using (var cmd = Db.CreateCommand() as MySqlCommand)
             {
                 cmd.CommandText = query;
+                if (_transaction != null)
+                    cmd.Transaction = _transaction;
                 if (values != null)
                 {
                     foreach (var item in values)
@@ -353,6 +359,8 @@ namespace DewCore.Database.MySQL
             using (var cmd = Db.CreateCommand() as MySqlCommand)
             {
                 cmd.CommandText = query;
+                if (_transaction != null)
+                    cmd.Transaction = _transaction;
                 if (values != null)
                 {
                     foreach (var item in values)
