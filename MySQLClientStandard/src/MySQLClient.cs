@@ -439,17 +439,16 @@ namespace DewCore.Database.MySQL
                     if (!temp.CheckConstarints())
                         result = await QueryAsync(query, parameters);
                     else
-                        result = new MySQLResponse(-1, -1, -1, new DatabaseError("Class constraint failed", 0));
+                        result = new MySQLResponse(DatabaseError.ErrorConst, DatabaseError.ErrorConst, DatabaseError.ErrorConst, new DatabaseError("Class constraint failed", 0));
                 }
                 else
                     result = await QueryAsync(query, parameters);
             }
             catch (Exception e)
             {
-                result = new MySQLResponse(-1, -1, -1, new DatabaseError(e.Message, e.HResult));
+                result = new MySQLResponse(DatabaseError.ErrorConst, DatabaseError.ErrorConst, DatabaseError.ErrorConst, new DatabaseError(e.Message, e.HResult));
             }
             return result;
-            return await QueryAsync(query, parameters);
         }
         /// <summary>
         /// Delete a row into the T table. Works only with "=" assertions
@@ -483,14 +482,14 @@ namespace DewCore.Database.MySQL
                     if (!temp.CheckConstarints())
                         result = await QueryAsync(query, parameters);
                     else
-                        result = new MySQLResponse(-1, -1, -1, new DatabaseError("Class constraint failed", 0));
+                        result = new MySQLResponse(DatabaseError.ErrorConst, DatabaseError.ErrorConst, DatabaseError.ErrorConst, new DatabaseError("Class constraint failed", 0));
                 }
                 else
                     result = await QueryAsync(query, parameters);
             }
             catch (Exception e)
             {
-                result = new MySQLResponse(-1, -1, -1, new DatabaseError(e.Message, e.HResult));
+                result = new MySQLResponse(DatabaseError.ErrorConst, DatabaseError.ErrorConst, DatabaseError.ErrorConst, new DatabaseError(e.Message, e.HResult));
             }
             return result;
         }
@@ -541,14 +540,14 @@ namespace DewCore.Database.MySQL
                     if (!temp.CheckConstarints())
                         result = await QueryAsync(query, parameters);
                     else
-                        result = new MySQLResponse(-1, -1, -1, new DatabaseError("Class constraint failed", 0));
+                        result = new MySQLResponse(DatabaseError.ErrorConst, DatabaseError.ErrorConst, DatabaseError.ErrorConst, new DatabaseError("Class constraint failed", 0));
                 }
                 else
                     result = await QueryAsync(query, parameters);
             }
             catch (Exception e)
             {
-                result = new MySQLResponse(-1, -1, -1, new DatabaseError(e.Message, e.HResult));
+                result = new MySQLResponse(DatabaseError.ErrorConst, DatabaseError.ErrorConst, DatabaseError.ErrorConst, new DatabaseError(e.Message, e.HResult));
             }
             return result;
         }
@@ -595,14 +594,14 @@ namespace DewCore.Database.MySQL
                     if (!temp.CheckConstarints())
                         result = await QueryAsync(query, parameters);
                     else
-                        result = new MySQLResponse(-1, -1, -1, new DatabaseError("Class constraint failed", 0));
+                        result = new MySQLResponse(DatabaseError.ErrorConst, DatabaseError.ErrorConst, DatabaseError.ErrorConst, new DatabaseError("Class constraint failed", 0));
                 }
                 else
                     result = await QueryAsync(query, parameters);
             }
             catch (Exception e)
             {
-                result = new MySQLResponse(-1, -1, -1, new DatabaseError(e.Message, e.HResult));
+                result = new MySQLResponse(DatabaseError.ErrorConst, DatabaseError.ErrorConst, DatabaseError.ErrorConst, new DatabaseError(e.Message, e.HResult));
             }
             return result;
         }
