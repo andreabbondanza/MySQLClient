@@ -146,7 +146,10 @@ namespace DewCore.Database.MySQL
         public void Dispose()
         {
             if (Db != null && Db.State != ConnectionState.Closed)
+            {
                 Db.Close();
+                Db.Dispose();
+            }
             if (DebugOn)
                 debugger.WriteLine("MySQLClient object disposed");
         }
