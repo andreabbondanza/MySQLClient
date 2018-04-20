@@ -15,16 +15,16 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageIconUrl>http://andrewdev.eu/wp-content/uploads/2016/08/OnlyLogo.png</PackageIconUrl>
     <Version>2.5.3</Version>
-    <PackageReleaseNotes>Fixed explicit transaction exception</PackageReleaseNotes>
-    <AssemblyVersion>2.5.0.0</AssemblyVersion>
-    <FileVersion>2.5.0.0</FileVersion>
+    <PackageReleaseNotes>Dependecies update, added const to DebugError for error responses</PackageReleaseNotes>
+    <AssemblyVersion>2.5.3.0</AssemblyVersion>
+    <FileVersion>2.5.3.0</FileVersion>
     <NeutralLanguage></NeutralLanguage>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DewDatabaseAbstracat" Version="1.6.0" />
+    <PackageReference Include="DewDatabaseAbstracat" Version="1.6.1" />
     <PackageReference Include="DewLogger" Version="2.0.0" />
-    <PackageReference Include="MySqlConnector" Version="0.33.1" />
+    <PackageReference Include="MySqlConnector" Version="0.36.1" />
   </ItemGroup>
 
 </Project>
