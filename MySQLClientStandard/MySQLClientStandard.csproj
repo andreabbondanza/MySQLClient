@@ -14,10 +14,10 @@
     <PackageTags>MySQL .net standard</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageIconUrl>http://andrewdev.eu/wp-content/uploads/2016/08/OnlyLogo.png</PackageIconUrl>
-    <Version>2.5.5</Version>
+    <Version>2.6.0</Version>
     <PackageReleaseNotes>Dependecies update, added const to DebugError for error responses</PackageReleaseNotes>
-    <AssemblyVersion>2.5.3.0</AssemblyVersion>
-    <FileVersion>2.5.3.0</FileVersion>
+    <AssemblyVersion>2.6.0.0</AssemblyVersion>
+    <FileVersion>2.6.0.0</FileVersion>
     <NeutralLanguage></NeutralLanguage>
   </PropertyGroup>
 
