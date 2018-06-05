@@ -433,7 +433,8 @@ namespace DewCore.Database.MySQL
                     var val = item.GetValue(newRow);
                     if (attributes.FirstOrDefault(x => x.GetType() == typeof(Abstract.Database.Nullable)) != default(Attribute))
                     {
-                        val = null;
+                        if (val.Equals(GetDefaultValue(val.GetType())))
+                            val = null;
                     }
                     parameters.Add(new MySqlParameter() { ParameterName = $"@{item.Name.ToLower()}", Value = val });
                 }
@@ -530,7 +531,8 @@ namespace DewCore.Database.MySQL
                         var val = item.GetValue(toUpdate);
                         if (attributes.FirstOrDefault(x => x.GetType() == typeof(Abstract.Database.Nullable)) != default(Attribute))
                         {
-                            val = null;
+                            if (val.Equals(GetDefaultValue(val.GetType())))
+                                val = null;
                         }
                         parameters.Add(new MySqlParameter() { ParameterName = $"@{item.Name.ToLower()}", Value = val });
                     }
@@ -566,6 +568,8 @@ namespace DewCore.Database.MySQL
             }
             return result;
         }
+        private object GetDefaultValue(Type t) => t.GetTypeInfo().IsValueType ? Activator.CreateInstance(t) : null;
+
         /// <summary>
         /// Update a row into the T table.
         /// </summary>
@@ -590,7 +594,8 @@ namespace DewCore.Database.MySQL
                     var val = item.GetValue(toUpdate);
                     if (attributes.FirstOrDefault(x => x.GetType() == typeof(Abstract.Database.Nullable)) != default(Attribute))
                     {
-                        val = null;
+                        if (val.Equals(GetDefaultValue(val.GetType())))
+                            val = null;
                     }
                     parameters.Add(new MySqlParameter() { ParameterName = $"@{item.Name.ToLower()}", Value = val });
                 }
