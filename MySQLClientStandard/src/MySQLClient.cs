@@ -87,6 +87,7 @@ namespace DewCore.Database.MySQL
             {
                 if (Db.State != ConnectionState.Closed)
                     Db.Close();
+                _transaction?.Dispose();
                 if (DebugOn)
                 {
                     debugger.WriteLine("Connection closed with:" + Db.Database);
@@ -148,6 +149,7 @@ namespace DewCore.Database.MySQL
             if (Db != null && Db.State != ConnectionState.Closed)
             {
                 Db.Close();
+                _transaction?.Dispose();
                 Db.Dispose();
             }
             if (DebugOn)
@@ -616,10 +618,7 @@ namespace DewCore.Database.MySQL
         {
             try
             {
-                if (Db.State == ConnectionState.Closed || Db.State == ConnectionState.Broken)
-                {
-                    await Db.OpenAsync(_cancellationToken);
-                }
+                await Db.OpenAsync(_cancellationToken);
                 if (DebugOn)
                 {
                     debugger.WriteLine("Connection opened with:" + Db.Database);
