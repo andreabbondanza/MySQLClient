@@ -430,7 +430,12 @@ namespace DewCore.Database.MySQL
                 {
                     queryBefore += item.Name + ",";
                     queryAfter += $"@{item.Name.ToLower()},";
-                    parameters.Add(new MySqlParameter() { ParameterName = $"@{item.Name.ToLower()}", Value = item.GetValue(newRow) });
+                    var val = item.GetValue(newRow);
+                    if (attributes.FirstOrDefault(x => x.GetType() == typeof(Abstract.Database.Nullable)) != default(Attribute))
+                    {
+                        val = null;
+                    }
+                    parameters.Add(new MySqlParameter() { ParameterName = $"@{item.Name.ToLower()}", Value = val });
                 }
             }
             queryBefore = queryBefore.Substring(0, queryBefore.Length - 1);
@@ -522,7 +527,12 @@ namespace DewCore.Database.MySQL
                     if (!toIgnore.Contains(item.Name))
                     {
                         query += item.Name + $"=@{item.Name.ToLower()},";
-                        parameters.Add(new MySqlParameter() { ParameterName = $"@{item.Name.ToLower()}", Value = item.GetValue(toUpdate) });
+                        var val = item.GetValue(toUpdate);
+                        if (attributes.FirstOrDefault(x => x.GetType() == typeof(Abstract.Database.Nullable)) != default(Attribute))
+                        {
+                            val = null;
+                        }
+                        parameters.Add(new MySqlParameter() { ParameterName = $"@{item.Name.ToLower()}", Value = val });
                     }
                 }
             }
@@ -577,7 +587,12 @@ namespace DewCore.Database.MySQL
                 if (attributes.FirstOrDefault(x => x.GetType() == typeof(IgnoreUpdate)) == default(Attribute) && attributes.FirstOrDefault(x => x.GetType() == typeof(NoColumn)) == default(Attribute))
                 {
                     query += item.Name + $"=@{item.Name.ToLower()},";
-                    parameters.Add(new MySqlParameter() { ParameterName = $"@{item.Name.ToLower()}", Value = item.GetValue(toUpdate) });
+                    var val = item.GetValue(toUpdate);
+                    if (attributes.FirstOrDefault(x => x.GetType() == typeof(Abstract.Database.Nullable)) != default(Attribute))
+                    {
+                        val = null;
+                    }
+                    parameters.Add(new MySqlParameter() { ParameterName = $"@{item.Name.ToLower()}", Value = val });
                 }
             }
             query = query.Substring(0, query.Length - 1) + " WHERE ";
@@ -586,6 +601,7 @@ namespace DewCore.Database.MySQL
                 IEnumerable<Attribute> attributes = item.GetCustomAttributes();
                 if (attributes.FirstOrDefault(x => x.GetType() == typeof(CheckUpdate)) != default(Attribute))
                 {
+
                     query += item.Name + $"=@u{item.Name.ToLower()} AND  ";
                     parameters.Add(new MySqlParameter() { ParameterName = $"@u{item.Name.ToLower()}", Value = item.GetValue(toFind) });
                 }
