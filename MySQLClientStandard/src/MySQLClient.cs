@@ -19,6 +19,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class MySQLClient : IMySQLClient, IDisposable
     {
+        public static MySQLQueryComposer Query { get; set; }
         /// <summary>
         /// Enable debug
         /// </summary>
@@ -409,6 +410,31 @@ namespace DewCore.Database.MySQL
             return response;
         }
         /// <summary>
+        /// Select directly in LINQ. NOTE: T name must be the Table Name
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="predicate"></param>
+        /// <param name="tablePrefix"></param>
+        /// <returns></returns>
+        public async Task<ICollection<T>> SelectAsync<T>(Func<T, bool> predicate, string tablePrefix = null) where T : class, new()
+        {
+            Type t = typeof(T);
+            var response = await QueryAsync<T>($"SELECT * FROM {tablePrefix}{t.Name}");
+            return response.Where(predicate).ToList();
+        }
+        /// <summary>
+        /// Select directly in LINQ. NOTE: T name must be the Table Name
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="tablePrefix"></param>
+        /// <returns></returns>
+        public async Task<ICollection<T>> SelectAsync<T>(string tablePrefix = null) where T : class, new()
+        {
+            Type t = typeof(T);
+            var response = await QueryAsync<T>($"SELECT * FROM {tablePrefix}{t.Name}");
+            return response;
+        }
+        /// <summary>
         /// Insert a row into the T table
         /// </summary>
         /// <typeparam name="T"></typeparam>
@@ -569,7 +595,6 @@ namespace DewCore.Database.MySQL
             return result;
         }
         private object GetDefaultValue(Type t) => t.GetTypeInfo().IsValueType ? Activator.CreateInstance(t) : null;
-
         /// <summary>
         /// Update a row into the T table.
         /// </summary>
