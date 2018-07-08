@@ -335,6 +335,12 @@ namespace DewCore.Database.MySQL
             CurrentQuery += query;
         }
 
+        public IBracketsComposer Brackets(IIQueryComposer innerComposer)
+        {
+            CurrentQuery += $" ({innerComposer.ComposedQuery()}) ";
+            return new BracketsComposer(GetAndCleanQuery);
+        }
+
         public IGroupByComposer GroupBy(params string[] columns)
         {
             throw new NotImplementedException();
@@ -368,6 +374,80 @@ namespace DewCore.Database.MySQL
         }
 
         public IWhereComposer Where(string column, string op, string value)
+        {
+            CurrentQuery += $" WHERE {column} {op} {value} ";
+            return new WhereComposer(GetAndCleanQuery);
+        }
+
+        public IWhereComposer Where()
+        {
+            CurrentQuery += " WHERE ";
+            return new WhereComposer(GetAndCleanQuery);
+        }
+    }
+
+    public class WhereComposer : QueryComposer, IWhereComposer
+    {
+        public WhereComposer(string query)
+        {
+            CurrentQuery += query;
+        }
+        public IAndComposer And()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IAndComposer And(string column, string op, string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IBetweenComposer Between(string column, string before, string after)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IBracketsComposer Brackets(IIQueryComposer innerComposer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IIQueryComposer Compose(IIQueryComposer compose)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IInComposer In(IIQueryComposer innnerComposer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ILikeComposer Like(string column, string pattern)
+        {
+            throw new NotImplementedException();
+        }
+
+        public INotComposer Not()
+        {
+            throw new NotImplementedException();
+        }
+
+        public INotComposer Not(string column, string op, string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IOrComposer Or()
+        {
+            throw new NotImplementedException();
+        }
+
+        public IOrComposer Or(string column, string op, string value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Reset()
         {
             throw new NotImplementedException();
         }
@@ -408,7 +488,14 @@ namespace DewCore.Database.MySQL
             CurrentQuery += query;
         }
     }
+    public class BracketsComposer : QueryComposer, IBracketsComposer
+    {
+        public BracketsComposer(string query)
+        {
+            CurrentQuery += query;
+        }
 
+    }
     public class GroupByComposer : QueryComposer, IGroupByComposer
     {
         public GroupByComposer(string query)
@@ -437,7 +524,14 @@ namespace DewCore.Database.MySQL
         }
         public IWhereComposer Where(string column, string op, string value)
         {
-            throw new NotImplementedException();
+            CurrentQuery += $" WHERE {column} {op} {value} ";
+            return new WhereComposer(GetAndCleanQuery);
+        }
+
+        public IWhereComposer Where()
+        {
+            CurrentQuery += " WHERE ";
+            return new WhereComposer(GetAndCleanQuery);
         }
     }
 

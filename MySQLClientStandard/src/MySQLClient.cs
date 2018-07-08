@@ -19,7 +19,6 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class MySQLClient : IMySQLClient, IDisposable
     {
-        public static MySQLQueryComposer Query { get; set; }
         /// <summary>
         /// Enable debug
         /// </summary>

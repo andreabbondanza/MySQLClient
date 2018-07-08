@@ -104,6 +104,7 @@ namespace DewCore.Abstract.Database.MySQL
     public interface IDeleteComposer : IIQueryComposer
     {
         IWhereComposer Where(string column, string op, string value);
+        IWhereComposer Where();
     }
     public interface IInsertComposer : IIQueryComposer
     {
@@ -122,11 +123,17 @@ namespace DewCore.Abstract.Database.MySQL
         IJoinComposer LJoin(string table);
         IJoinComposer RJoin(string table);
         IWhereComposer Where(string column, string op, string value);
+        IWhereComposer Where();
         IGroupByComposer GroupBy(params string[] columns);
         IOrderByComposer OrderBy(params string[] columns);
         IOrderByComposer OrderByDesc(params string[] columns);
+        IBracketsComposer Brackets(IIQueryComposer innerComposer);
     }
 
+    public interface IConditionComposer
+    {
+
+    }
 
 
     public interface IGroupByComposer : IIQueryComposer
@@ -141,9 +148,49 @@ namespace DewCore.Abstract.Database.MySQL
 
     public interface IWhereComposer : IIQueryComposer
     {
+        INotComposer Not();
+        INotComposer Not(string column, string op, string value);
+        IInComposer In(IIQueryComposer innnerComposer);
+        IOrComposer Or();
+        IOrComposer Or(string column, string op, string value);
+        IAndComposer And();
+        IAndComposer And(string column, string op, string value);
+        ILikeComposer Like(string column, string pattern);
+        IBetweenComposer Between(string column, string before, string after);
+        IBracketsComposer Brackets(IIQueryComposer innerComposer);
+    }
+    public interface IBracketsComposer
+    {
+
+    }
+    public interface INotComposer : IIQueryComposer
+    {
 
     }
 
+    public interface IBetweenComposer : IIQueryComposer
+    {
+
+    }
+    public interface IOrComposer : IIQueryComposer
+    {
+
+    }
+
+    public interface IAndComposer : IIQueryComposer
+    {
+
+    }
+
+    public interface IInComposer : IIQueryComposer
+    {
+
+    }
+
+    public interface ILikeComposer : IIQueryComposer
+    {
+
+    }
     public interface IJoinComposer : IIQueryComposer
     {
 
