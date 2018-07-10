@@ -14,9 +14,9 @@
     <PackageTags>MySQL .net standard</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageIconUrl>http://andrewdev.eu/wp-content/uploads/2016/08/OnlyLogo.png</PackageIconUrl>
-    <Version>2.7.0</Version>
-    <PackageReleaseNotes>Fixed nullable insert bug</PackageReleaseNotes>
-    <AssemblyVersion>2.7.0.0</AssemblyVersion>
+    <Version>2.8.0</Version>
+    <PackageReleaseNotes>Added query composer</PackageReleaseNotes>
+    <AssemblyVersion>2.8.0.0</AssemblyVersion>
     <FileVersion>2.7.0.0</FileVersion>
     <NeutralLanguage></NeutralLanguage>
   </PropertyGroup>
