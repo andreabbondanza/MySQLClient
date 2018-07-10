@@ -1,6 +1,12 @@
 # MySQLClient
 A .net standard client for MySQL based on __MySQLConnector__
 
+# Changelog
+
+##### V 2.8.0
+
+- Added Query Composer
+
 # How to use
 Library examples
 
@@ -263,22 +269,101 @@ When you define a class to use the query with T object, you can also map the pro
 Here an example:
 
 ```csharp
-public async Task ExampleDebug()
+
+public class User
 {
-	public class User
-	{
-		[CheckDelete] //This property will be used to target the row in Delete function
-		[IgnoreInsert]//This property will be ignored in the Insert function
-		[CheckUpdate] //This property will be used to target the row in Update function
-		public long Id { get; set; }
-		public string Name { get; set; }
-		public bool IsAlive { get; set; }
-		[IgnoreInsert]//This property will be ignored in the Insert function
-		[IgnoreUpdate]//This property will be ignored in the Update function
-		public long IdTriggered { get; set; }
-	}
+	[CheckDelete] //This property will be used to target the row in Delete function
+	[IgnoreInsert]//This property will be ignored in the Insert function
+	[CheckUpdate] //This property will be used to target the row in Update function
+	public long Id { get; set; }
+	public string Name { get; set; }
+	public bool IsAlive { get; set; }
+	[IgnoreInsert]//This property will be ignored in the Insert function
+	[IgnoreUpdate]//This property will be ignored in the Update function
+	public long IdTriggered { get; set; }
+        [NoColumn] //This property will be always ignored
+        public long FriendlyName {get => Name + (IsAlive ? "alive" : "dead"); }
+}
+
+```
+
+## Query Composer
+
+With 2.8.0 I've added the Query Composer, a way to compose a query without (or we trying :) ) syntax errors.
+
+We have two type of it:
+
+- SimpleQueryComposer
+- ComplexQueryComposer
+
+#### Simple query composer
+
+The simple query composer let you compose the query with intellisense but without any type of control. For example you can call two times a select.
+
+```csharp
+public void Example()
+{
+    var c1 = new MySQLSimpleQueryComposer();
+    string query = c1.Select().From("ExampleTable").OrderBy("IdExample").ComposedQuery();
+    c1.Reset();
+    string query1 = c1.Select("Name", "Surname").From("Users").Where("Age", ">", "18").And("Sex", "=", "M").OrderByDesc("Age").ComposedQuery();
+    c1.Reset();
+    string queryArgs = c1.Select("Name", "Surname").From("Users").Where("Age", ">", "@age").And("Sex", "=", "@sex").OrderByDesc("Age").ComposedQuery();
+    c1.Reset();
+    var c2 = new MySQLSimpleQueryComposer().Select("ExampleCode").From("ExampleCodesTable");
+    string queryComposed = c1.Select().From("ExampleTable as A").Join("ExampleTable1 as B").On("A.Id", "B.IdExample").Where().Column("ExampleCode").Not().In(c2).ComposedQuery();
+    c1.Reset();
+    c1.From("Table").Select().And("Age", ">", "18");
+    string wrongQuery = c1;
+    Console.WriteLine(query);
+    Console.WriteLine(query1);
+    Console.WriteLine(queryArgs);
+    Console.WriteLine(queryComposed);
+    Console.WriteLine(wrongQuery);
 }
 ```
+The output is:
+```sql
+SELECT *  FROM ExampleTable  ORDER BY IdExample
+SELECT Name,Surname  FROM Users  WHERE Age > 18  AND Sex = M  ORDER BY Age DESC
+SELECT Name,Surname  FROM Users  WHERE Age > @age  AND Sex = @sex  ORDER BY Age DESC
+SELECT *  FROM ExampleTable as A  INNER JOIN ExampleTable1 as B  ON A.Id = B.IdExample WHERE  ExampleCode  NOT  IN (SELECT ExampleCode  FROM ExampleCodesTable )
+FROM Table SELECT *  AND Age > 18
+```
+As you can see, with __simplequerycomposer__ you don't have any type of control with __SQL__ syntax.
+
+#### Complex query composer
+
+The complex query composer will help you to prevent syntax errors because it use intellisense to lead you through the query composition.
+
+Example:
+
+```csharp
+public void Example()
+{
+    RootComposer c = new RootComposer();
+    string val = c.Select().From("dev_barb").Where().Column<WhereComposer>("idBarb").Not().In(new RootComposer().Select("idBarb").From("dev_payed").Where("Pay", ">", "0")).And("State", "=", "1").ComposedQuery();
+    Console.WriteLine(val);
+    val = c.Select().From("dev_barb as T").OrderByDesc("name", "surname").ComposedQuery();
+    Console.WriteLine(val);
+    val = c.Select().From("A as X").Join("B as Y").OrderBy("puop").ComposedQuery();
+    Console.WriteLine(val);
+    val = c.Select().From("A as X").Join("B as Y").On("X.IdUser", "Y.IdUtente").OrderBy("puop").ComposedQuery();
+    Console.WriteLine(val);
+}
+```
+Give output:
+```sql
+SELECT *  FROM dev_barb  WHERE idBarb NOT  IN (SELECT idBarb  FROM dev_payed  WHERE Pay > 0 )  AND State = 1
+SELECT *  FROM dev_barb as T  ORDER BY name,surname DESC
+SELECT *  FROM A as X  INNER JOIN B as Y  ORDER BY puop
+SELECT *  FROM A as X  INNER JOIN B as Y  ON X.IdUser = Y.IdUtente  ORDER BY puop
+```
+
+The main difference is that you need to start from __RootComposer__ that let you to choose between starts object like _SELECT_,_INSERT_ etc.
+Now the intellisense will lead you, for example the __SELECT__ composer object can only go to the __FROM__ composer object.
+
+__NOTE__: This will not prevent at 100% the sql syntax errors, for example the __where__ goes in __groupby__, but if you use a __groupby__ after a __where__ in a __delete__ you'll get an error.
 
 ## NuGet
 You can find it on nuget with the name [DewMySQLClient](https://www.nuget.org/packages/DewMySQLClient/)

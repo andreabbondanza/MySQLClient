@@ -21,11 +21,15 @@
     <NeutralLanguage></NeutralLanguage>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>bin\Debug\netstandard1.3\DewMySQLClient.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
-    <PackageReference Include="DewDatabaseAbstracat" Version="1.8.0" />
+    <PackageReference Include="DewDatabaseAbstracat" Version="1.9.3" />
     <PackageReference Include="DewLogger" Version="2.0.0" />
     <PackageReference Include="DewStrings" Version="2.3.0" />
-    <PackageReference Include="MySqlConnector" Version="0.42.2" />
+    <PackageReference Include="MySqlConnector" Version="0.42.3" />
   </ItemGroup>
 
 </Project>
