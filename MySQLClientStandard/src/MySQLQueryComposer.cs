@@ -950,6 +950,28 @@ namespace DewCore.Database.MySQL
             CurrentQuery += $" OR {column} {op} {value} ";
             return new OrComposer(GetAndCleanQuery);
         }
+
+        /// <summary>
+        /// Single and composer
+        /// </summary>
+        /// <returns></returns>
+        public IAndComposer And()
+        {
+            CurrentQuery += " AND ";
+            return new AndComposer(GetAndCleanQuery);
+        }
+        /// <summary>
+        /// And composer
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="op"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public IAndComposer And(string column, string op, string value)
+        {
+            CurrentQuery += $" AND {column} {op} {value} ";
+            return new AndComposer(GetAndCleanQuery);
+        }
     }
     /// <summary>
     /// Between composer
@@ -1264,6 +1286,27 @@ namespace DewCore.Database.MySQL
         {
             CurrentQuery += $" ({innerComposer.ComposedQuery()}) ";
             return new T().SetQuery<T>(GetAndCleanQuery);
+        }
+        /// <summary>
+        /// Single or composer
+        /// </summary>
+        /// <returns></returns>
+        public IOrComposer Or()
+        {
+            CurrentQuery += " OR ";
+            return new OrComposer(GetAndCleanQuery);
+        }
+        /// <summary>
+        /// Or composer
+        /// </summary>
+        /// <param name="column"></param>
+        /// <param name="op"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public IOrComposer Or(string column, string op, string value)
+        {
+            CurrentQuery += $" OR {column} {op} {value} ";
+            return new OrComposer(GetAndCleanQuery);
         }
     }
     /// <summary>
