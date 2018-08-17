@@ -972,6 +972,36 @@ namespace DewCore.Database.MySQL
             CurrentQuery += $" AND {column} {op} {value} ";
             return new AndComposer(GetAndCleanQuery);
         }
+        /// <summary>
+        /// Group by composer
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <returns></returns>
+        public IGroupByComposer GroupBy(params string[] columns)
+        {
+            CurrentQuery += $" GROUP BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
+            return new GroupByComposer(GetAndCleanQuery);
+        }
+        /// <summary>
+        /// Order by composer
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <returns></returns>
+        public IOrderByComposer OrderBy(params string[] columns)
+        {
+            CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} ";
+            return new OrderByComposer(GetAndCleanQuery);
+        }
+        /// <summary>
+        /// Order by composer
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <returns></returns>
+        public IOrderByComposer OrderByDesc(params string[] columns)
+        {
+            CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
+            return new OrderByComposer(GetAndCleanQuery);
+        }
     }
     /// <summary>
     /// Between composer
@@ -1307,6 +1337,36 @@ namespace DewCore.Database.MySQL
         {
             CurrentQuery += $" OR {column} {op} {value} ";
             return new OrComposer(GetAndCleanQuery);
+        }
+        /// <summary>
+        /// Group by composer
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <returns></returns>
+        public IGroupByComposer GroupBy(params string[] columns)
+        {
+            CurrentQuery += $" GROUP BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
+            return new GroupByComposer(GetAndCleanQuery);
+        }
+        /// <summary>
+        /// Order by composer
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <returns></returns>
+        public IOrderByComposer OrderBy(params string[] columns)
+        {
+            CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} ";
+            return new OrderByComposer(GetAndCleanQuery);
+        }
+        /// <summary>
+        /// Order by composer
+        /// </summary>
+        /// <param name="columns"></param>
+        /// <returns></returns>
+        public IOrderByComposer OrderByDesc(params string[] columns)
+        {
+            CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
+            return new OrderByComposer(GetAndCleanQuery);
         }
     }
     /// <summary>
