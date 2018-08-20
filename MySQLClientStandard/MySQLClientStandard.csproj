@@ -14,7 +14,7 @@
     <PackageTags>MySQL .net standard</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageIconUrl>http://andrewdev.eu/wp-content/uploads/2016/08/OnlyLogo.png</PackageIconUrl>
-    <Version>2.8.3</Version>
+    <Version>2.8.4</Version>
     <PackageReleaseNotes>Fixed bug for null exceptions in response</PackageReleaseNotes>
     <AssemblyVersion>2.8.0.0</AssemblyVersion>
     <FileVersion>2.7.0.0</FileVersion>
