@@ -482,7 +482,7 @@ namespace DewCore.Database.MySQL
             }
             catch (Exception e)
             {
-                result = new MySQLResponse(DatabaseError.ErrorConst, DatabaseError.ErrorConst, DatabaseError.ErrorConst, new DatabaseError(e.Message, e.HResult));
+                result = new MySQLResponse(DatabaseError.ErrorConst, DatabaseError.ErrorConst, DatabaseError.ErrorConst, new DatabaseError(e));
             }
             return result;
         }
@@ -525,7 +525,7 @@ namespace DewCore.Database.MySQL
             }
             catch (Exception e)
             {
-                result = new MySQLResponse(DatabaseError.ErrorConst, DatabaseError.ErrorConst, DatabaseError.ErrorConst, new DatabaseError(e.Message, e.HResult));
+                result = new MySQLResponse(DatabaseError.ErrorConst, DatabaseError.ErrorConst, DatabaseError.ErrorConst, new DatabaseError(e));
             }
             return result;
         }
@@ -589,7 +589,7 @@ namespace DewCore.Database.MySQL
             }
             catch (Exception e)
             {
-                result = new MySQLResponse(DatabaseError.ErrorConst, DatabaseError.ErrorConst, DatabaseError.ErrorConst, new DatabaseError(e.Message, e.HResult));
+                result = new MySQLResponse(DatabaseError.ErrorConst, DatabaseError.ErrorConst, DatabaseError.ErrorConst, new DatabaseError(e));
             }
             return result;
         }
@@ -651,7 +651,7 @@ namespace DewCore.Database.MySQL
             }
             catch (Exception e)
             {
-                result = new MySQLResponse(DatabaseError.ErrorConst, DatabaseError.ErrorConst, DatabaseError.ErrorConst, new DatabaseError(e.Message, e.HResult));
+                result = new MySQLResponse(DatabaseError.ErrorConst, DatabaseError.ErrorConst, DatabaseError.ErrorConst, new DatabaseError(e));
             }
             return result;
         }
