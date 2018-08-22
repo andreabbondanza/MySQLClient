@@ -548,6 +548,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class UpdateComposer : QueryComposer, IUpdateComposer
     {
+        public UpdateComposer() { }
         /// <summary>
         /// Composer
         /// </summary>
@@ -572,6 +573,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class OnComposer : QueryComposer, IOnComposer
     {
+        public OnComposer() { }
         /// <summary>
         /// Constructor
         /// </summary>
@@ -645,6 +647,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class ConditionComposer : QueryComposer, IConditionComposer
     {
+        public ConditionComposer() { }
         /// <summary>
         /// Constructo
         /// </summary>
@@ -719,6 +722,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class SelectComposer : QueryComposer, ISelectComposer
     {
+        public SelectComposer() { }
         /// <summary>
         /// Constructor
         /// </summary>
@@ -743,6 +747,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class FromComposer : QueryComposer, IFromComposer
     {
+        public FromComposer() { }
         /// <summary>
         /// Constructor
         /// </summary>
@@ -846,6 +851,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class AndComposer : QueryComposer, IAndComposer
     {
+        public AndComposer() { }
         /// <summary>
         /// Constructor
         /// </summary>
@@ -1008,6 +1014,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class BetweenComposer : QueryComposer, IBetweenComposer
     {
+        public BetweenComposer() { }
         /// <summary>
         /// Constructor
         /// </summary>
@@ -1061,6 +1068,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class WhereComposer : QueryComposer, IWhereComposer
     {
+        public WhereComposer() { }
         /// <summary>
         /// constructor
         /// </summary>
@@ -1213,6 +1221,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class OrComposer : QueryComposer, IOrComposer
     {
+        public OrComposer() { }
         /// <summary>
         /// constructor
         /// </summary>
@@ -1374,6 +1383,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class LikeComposer : QueryComposer, ILikeComposer
     {
+        public LikeComposer() { }
         /// <summary>
         /// Constructor
         /// </summary>
@@ -1427,6 +1437,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class InComposer : QueryComposer, IInComposer
     {
+        public InComposer() { }
         /// <summary>
         /// Constructor
         /// </summary>
@@ -1480,6 +1491,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class NotComposer : QueryComposer, INotComposer
     {
+        public NotComposer() { }
         /// <summary>
         /// Not composer
         /// </summary>
@@ -1577,6 +1589,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class InsertComposer : QueryComposer, IInsertComposer
     {
+        public InsertComposer() { }
         /// <summary>
         /// Constructor
         /// </summary>
@@ -1622,6 +1635,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class ValuesComposer : QueryComposer, IValuesComposer
     {
+        public ValuesComposer() { }
         /// <summary>
         /// Values composer
         /// </summary>
@@ -1633,6 +1647,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class OrderByComposer : QueryComposer, IOrderByComposer
     {
+        public OrderByComposer() { }
         /// <summary>
         /// Order by composer
         /// </summary>
@@ -1647,6 +1662,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class GroupByComposer : QueryComposer, IGroupByComposer
     {
+        public GroupByComposer() { }
         /// <summary>
         /// Group by composer
         /// </summary>
@@ -1681,6 +1697,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class DeleteComposer : QueryComposer, IDeleteComposer
     {
+        public DeleteComposer() { }
         /// <summary>
         /// Constructor
         /// </summary>
@@ -1716,6 +1733,7 @@ namespace DewCore.Database.MySQL
     /// </summary>
     public class JoinComposer : QueryComposer, IJoinComposer
     {
+        public JoinComposer() { }
         /// <summary>
         /// Join composer constructor
         /// </summary>
