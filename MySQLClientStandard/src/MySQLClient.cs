@@ -38,7 +38,7 @@ namespace DewCore.Database.MySQL
         ///<summary>
         /// Cancellation token
         ///</summary>
-        private CancellationToken _cancellationToken = default(CancellationToken);
+        private readonly CancellationToken _cancellationToken = default(CancellationToken);
         /// <summary>
         /// Set logger
         /// </summary>

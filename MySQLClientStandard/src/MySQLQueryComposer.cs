@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using DewCore.Abstract.Database;
+using DewCore.Extensions.Strings;
 
 namespace DewCore.Database.MySQL
 {
@@ -422,7 +423,7 @@ namespace DewCore.Database.MySQL
         /// <returns></returns>
         public T Column<T>(string column) where T : class, IQueryComposer
         {
-            CurrentQuery += column;
+            CurrentQuery += " " + column + " ";
             return this as T;
         }
         protected QueryComposer()
@@ -736,9 +737,11 @@ namespace DewCore.Database.MySQL
         /// </summary>
         /// <param name="table"></param>
         /// <returns></returns>
-        public IFromComposer From(string table)
+        public IFromComposer From(string table, string alias = null)
         {
-            CurrentQuery += $" FROM {table} ";
+            if (!alias.IsNullOrEmpty())
+                alias = $" AS {alias}";
+            CurrentQuery += $" FROM {table}{alias} ";
             return new FromComposer(GetAndCleanQuery);
         }
     }
@@ -779,9 +782,11 @@ namespace DewCore.Database.MySQL
         /// </summary>
         /// <param name="table"></param>
         /// <returns></returns>
-        public IJoinComposer Join(string table)
+        public IJoinComposer Join(string table, string alias = null)
         {
-            CurrentQuery += $" INNER JOIN {table} ";
+            if (!alias.IsNullOrEmpty())
+                alias = $" AS {alias}";
+            CurrentQuery += $" INNER JOIN {table}{alias} ";
             return new JoinComposer(GetAndCleanQuery);
         }
         /// <summary>
@@ -789,9 +794,11 @@ namespace DewCore.Database.MySQL
         /// </summary>
         /// <param name="table"></param>
         /// <returns></returns>
-        public IJoinComposer LJoin(string table)
+        public IJoinComposer LJoin(string table, string alias = null)
         {
-            CurrentQuery += $" LEFT JOIN {table} ";
+            if (!alias.IsNullOrEmpty())
+                alias = $" AS {alias}";
+            CurrentQuery += $" LEFT JOIN {table}{alias} ";
             return new JoinComposer(GetAndCleanQuery);
         }
         /// <summary>
@@ -819,9 +826,11 @@ namespace DewCore.Database.MySQL
         /// </summary>
         /// <param name="table"></param>
         /// <returns></returns>
-        public IJoinComposer RJoin(string table)
+        public IJoinComposer RJoin(string table, string alias = null)
         {
-            CurrentQuery += $" RIGHT JOIN {table} ";
+            if (!alias.IsNullOrEmpty())
+                alias = $" AS {alias}";
+            CurrentQuery += $" RIGHT JOIN {table}{alias} ";
             return new JoinComposer(GetAndCleanQuery);
         }
         /// <summary>

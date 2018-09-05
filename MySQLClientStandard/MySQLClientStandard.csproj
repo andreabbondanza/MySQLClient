@@ -14,7 +14,7 @@
     <PackageTags>MySQL .net standard</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageIconUrl>http://andrewdev.eu/wp-content/uploads/2016/08/OnlyLogo.png</PackageIconUrl>
-    <Version>2.8.5</Version>
+    <Version>2.10.0</Version>
     <PackageReleaseNotes>Fixed composed missing public T constructors</PackageReleaseNotes>
     <AssemblyVersion>2.8.0.0</AssemblyVersion>
     <FileVersion>2.7.0.0</FileVersion>
@@ -26,10 +26,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DewDatabaseAbstracat" Version="1.9.6" />
+    <PackageReference Include="DewDatabaseAbstracat" Version="1.11.0" />
     <PackageReference Include="DewLogger" Version="2.0.0" />
     <PackageReference Include="DewStrings" Version="2.3.0" />
-    <PackageReference Include="MySqlConnector" Version="0.42.3" />
+    <PackageReference Include="MySqlConnector" Version="0.44.1" />
   </ItemGroup>
 
 </Project>
