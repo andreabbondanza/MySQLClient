@@ -741,7 +741,7 @@ namespace DewCore.Database.MySQL
         {
             if (!alias.IsNullOrEmpty())
                 alias = $" AS {alias}";
-            CurrentQuery += $" FROM {table}{alias} ";
+            CurrentQuery += $" FROM ({table}){alias} ";
             return new FromComposer(GetAndCleanQuery);
         }
     }
@@ -786,7 +786,7 @@ namespace DewCore.Database.MySQL
         {
             if (!alias.IsNullOrEmpty())
                 alias = $" AS {alias}";
-            CurrentQuery += $" INNER JOIN {table}{alias} ";
+            CurrentQuery += $" INNER JOIN ({table}){alias} ";
             return new JoinComposer(GetAndCleanQuery);
         }
         /// <summary>
@@ -798,7 +798,7 @@ namespace DewCore.Database.MySQL
         {
             if (!alias.IsNullOrEmpty())
                 alias = $" AS {alias}";
-            CurrentQuery += $" LEFT JOIN {table}{alias} ";
+            CurrentQuery += $" LEFT JOIN ({table}){alias} ";
             return new JoinComposer(GetAndCleanQuery);
         }
         /// <summary>
@@ -830,7 +830,7 @@ namespace DewCore.Database.MySQL
         {
             if (!alias.IsNullOrEmpty())
                 alias = $" AS {alias}";
-            CurrentQuery += $" RIGHT JOIN {table}{alias} ";
+            CurrentQuery += $" RIGHT JOIN ({table}){alias} ";
             return new JoinComposer(GetAndCleanQuery);
         }
         /// <summary>
