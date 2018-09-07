@@ -400,6 +400,14 @@ namespace DewCore.Database.MySQL
             return temp;
         }
         /// <summary>
+        /// Simple append query
+        /// </summary>
+        /// <param name="query"></param>
+        public void SetQuery(string query = null)
+        {
+            CurrentQuery += query;
+        }
+        /// <summary>
         /// APpend composers
         /// </summary>
         /// <param name="compose"></param>
@@ -415,10 +423,12 @@ namespace DewCore.Database.MySQL
         /// <typeparam name="T"></typeparam>
         /// <param name="query"></param>
         /// <returns></returns>
-        public T SetQuery<T>(string query) where T : class, IQueryComposer
+        public T SetQuery<T>(string query = null) where T : class, IQueryComposer, new()
         {
             CurrentQuery += query;
-            return this as T;
+            var temp = new T();
+            temp.SetQuery(GetAndCleanQuery());
+            return temp;
         }
         /// <summary>
         /// Append column
@@ -426,10 +436,12 @@ namespace DewCore.Database.MySQL
         /// <typeparam name="T"></typeparam>
         /// <param name="column"></param>
         /// <returns></returns>
-        public T Column<T>(string column) where T : class, IQueryComposer
+        public T Column<T>(string column) where T : class, IQueryComposer, new()
         {
             CurrentQuery += " " + column + " ";
-            return this as T;
+            var temp = new T();
+            temp.SetQuery(GetAndCleanQuery());
+            return temp;
         }
         protected QueryComposer()
         {

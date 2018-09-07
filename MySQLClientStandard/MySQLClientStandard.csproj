@@ -14,7 +14,7 @@
     <PackageTags>MySQL .net standard</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageIconUrl>http://andrewdev.eu/wp-content/uploads/2016/08/OnlyLogo.png</PackageIconUrl>
-    <Version>2.11.1</Version>
+    <Version>2.12.0</Version>
     <PackageReleaseNotes>Valuecomposer to valuecomposer</PackageReleaseNotes>
     <AssemblyVersion>2.8.0.0</AssemblyVersion>
     <FileVersion>2.7.0.0</FileVersion>
@@ -26,7 +26,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DewDatabaseAbstracat" Version="1.12.0" />
+    <PackageReference Include="DewDatabaseAbstracat" Version="1.13.0" />
     <PackageReference Include="DewLogger" Version="2.0.0" />
     <PackageReference Include="DewStrings" Version="2.3.0" />
     <PackageReference Include="MySqlConnector" Version="0.44.1" />
