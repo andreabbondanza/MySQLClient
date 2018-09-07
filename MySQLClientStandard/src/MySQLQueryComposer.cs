@@ -386,14 +386,19 @@ namespace DewCore.Database.MySQL
         /// </summary>
         public void Reset() => CurrentQuery = string.Empty;
         /// <summary>
-        /// Get query and clean
-        /// </summary>
-        public string GetAndCleanQuery { get { var temp = CurrentQuery; CurrentQuery = string.Empty; return temp; } }
-        /// <summary>
         /// Get composed string
         /// </summary>
         /// <returns></returns>
         public string ComposedQuery() => CurrentQuery;
+        /// <summary>
+        /// Get query and clean
+        /// </summary>
+        public string GetAndCleanQuery()
+        {
+            var temp = CurrentQuery;
+            CurrentQuery = string.Empty;
+            return temp;
+        }
         /// <summary>
         /// APpend composers
         /// </summary>
@@ -444,7 +449,7 @@ namespace DewCore.Database.MySQL
         public IDeleteComposer Delete(string table)
         {
             CurrentQuery += $"DELETE FROM {table} ";
-            return new DeleteComposer(GetAndCleanQuery);
+            return new DeleteComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Insert composer
@@ -455,7 +460,7 @@ namespace DewCore.Database.MySQL
         public IInsertComposer Insert(string table, params string[] columns)
         {
             CurrentQuery += $"INSERT INTO {table} ({columns.Aggregate((curr, next) => curr + "," + next)}) ";
-            return new InsertComposer(GetAndCleanQuery);
+            return new InsertComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Select composer
@@ -467,7 +472,7 @@ namespace DewCore.Database.MySQL
             string cols = "*";
             cols = columns.Length <= 0 ? "*" : columns.Aggregate((curr, next) => curr + "," + next);
             CurrentQuery += $"SELECT {cols} ";
-            return new SelectComposer(GetAndCleanQuery);
+            return new SelectComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Select avg composer
@@ -477,7 +482,7 @@ namespace DewCore.Database.MySQL
         public ISelectComposer SelectAvg(string column)
         {
             CurrentQuery += $"SELECT AVG({column}) ";
-            return new SelectComposer(GetAndCleanQuery);
+            return new SelectComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Select count composer
@@ -489,7 +494,7 @@ namespace DewCore.Database.MySQL
             string cols = "*";
             cols = columns.Length <= 0 ? "*" : columns.Aggregate((curr, next) => curr + "," + next);
             CurrentQuery += $"SELECT COUNT({cols}) ";
-            return new SelectComposer(GetAndCleanQuery);
+            return new SelectComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Select distinct composer
@@ -501,7 +506,7 @@ namespace DewCore.Database.MySQL
             string cols = null;
             cols = columns.Length <= 0 ? "*" : columns.Aggregate((curr, next) => curr + "," + next);
             CurrentQuery += $"SELECT DISTINCT {cols} ";
-            return new SelectComposer(GetAndCleanQuery);
+            return new SelectComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Select max composer
@@ -511,7 +516,7 @@ namespace DewCore.Database.MySQL
         public ISelectComposer SelectMax(string column)
         {
             CurrentQuery += $"SELECT MAX({column}) ";
-            return new SelectComposer(GetAndCleanQuery);
+            return new SelectComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Select min composer
@@ -521,7 +526,7 @@ namespace DewCore.Database.MySQL
         public ISelectComposer SelectMin(string column)
         {
             CurrentQuery += $"SELECT MIN({column}) ";
-            return new SelectComposer(GetAndCleanQuery);
+            return new SelectComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Select sum composer
@@ -531,7 +536,7 @@ namespace DewCore.Database.MySQL
         public ISelectComposer SelectSum(string column)
         {
             CurrentQuery += $"SELECT SUM({column}) ";
-            return new SelectComposer(GetAndCleanQuery);
+            return new SelectComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Update composer
@@ -541,7 +546,7 @@ namespace DewCore.Database.MySQL
         public IUpdateComposer Update(string table)
         {
             CurrentQuery += $"UPDATE {table} SET ";
-            return new UpdateComposer(GetAndCleanQuery);
+            return new UpdateComposer(GetAndCleanQuery());
         }
     }
     /// <summary>
@@ -566,7 +571,7 @@ namespace DewCore.Database.MySQL
         public IConditionComposer Condition(string column, string op, string value, string comma = "")
         {
             CurrentQuery += $" {column} {op} {value} {comma}";
-            return new ConditionComposer(GetAndCleanQuery);
+            return new ConditionComposer(GetAndCleanQuery());
         }
     }
     /// <summary>
@@ -588,7 +593,7 @@ namespace DewCore.Database.MySQL
         public IOrderByComposer OrderBy(params string[] columns)
         {
             CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} ";
-            return new OrderByComposer(GetAndCleanQuery);
+            return new OrderByComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Order by desc composer
@@ -598,7 +603,7 @@ namespace DewCore.Database.MySQL
         public IOrderByComposer OrderByDesc(params string[] columns)
         {
             CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
-            return new OrderByComposer(GetAndCleanQuery);
+            return new OrderByComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Where composer
@@ -610,7 +615,7 @@ namespace DewCore.Database.MySQL
         public IWhereComposer Where(string column, string op, string value)
         {
             CurrentQuery += $" WHERE {column} {op} {value} ";
-            return new WhereComposer(GetAndCleanQuery);
+            return new WhereComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Single where composer
@@ -619,7 +624,7 @@ namespace DewCore.Database.MySQL
         public IWhereComposer Where()
         {
             CurrentQuery += " WHERE ";
-            return new WhereComposer(GetAndCleanQuery);
+            return new WhereComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Brackets composer
@@ -630,7 +635,7 @@ namespace DewCore.Database.MySQL
         public T Brackets<T>(IQueryComposer innerComposer) where T : class, IQueryComposer, new()
         {
             CurrentQuery += $" ({innerComposer.ComposedQuery()}) ";
-            return new T().SetQuery<T>(GetAndCleanQuery);
+            return new T().SetQuery<T>(GetAndCleanQuery());
         }
         /// <summary>
         /// Group by composer
@@ -640,7 +645,7 @@ namespace DewCore.Database.MySQL
         public IGroupByComposer GroupBy(params string[] columns)
         {
             CurrentQuery += $" GROUP BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
-            return new GroupByComposer(GetAndCleanQuery);
+            return new GroupByComposer(GetAndCleanQuery());
         }
     }
     /// <summary>
@@ -661,7 +666,7 @@ namespace DewCore.Database.MySQL
         public IAndComposer And()
         {
             CurrentQuery += " AND ";
-            return new AndComposer(GetAndCleanQuery);
+            return new AndComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// And composer
@@ -673,7 +678,7 @@ namespace DewCore.Database.MySQL
         public IAndComposer And(string column, string op, string value)
         {
             CurrentQuery += $" AND {column} {op} {value} ";
-            return new AndComposer(GetAndCleanQuery);
+            return new AndComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Single Or composer
@@ -682,7 +687,7 @@ namespace DewCore.Database.MySQL
         public IOrComposer Or()
         {
             CurrentQuery += " OR ";
-            return new OrComposer(GetAndCleanQuery);
+            return new OrComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Or composer
@@ -694,7 +699,7 @@ namespace DewCore.Database.MySQL
         public IOrComposer Or(string column, string op, string value)
         {
             CurrentQuery += $" OR {column} {op} {value} ";
-            return new OrComposer(GetAndCleanQuery);
+            return new OrComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Where composer
@@ -706,7 +711,7 @@ namespace DewCore.Database.MySQL
         public IWhereComposer Where(string column, string op, string value)
         {
             CurrentQuery += $" WHERE {column} {op} {value} ";
-            return new WhereComposer(GetAndCleanQuery);
+            return new WhereComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Single Where composer
@@ -715,7 +720,7 @@ namespace DewCore.Database.MySQL
         public IWhereComposer Where()
         {
             CurrentQuery += " WHERE ";
-            return new WhereComposer(GetAndCleanQuery);
+            return new WhereComposer(GetAndCleanQuery());
         }
     }
     /// <summary>
@@ -742,7 +747,7 @@ namespace DewCore.Database.MySQL
             if (!alias.IsNullOrEmpty())
                 alias = $" AS {alias}";
             CurrentQuery += $" FROM ({table}){alias} ";
-            return new FromComposer(GetAndCleanQuery);
+            return new FromComposer(GetAndCleanQuery());
         }
     }
     /// <summary>
@@ -765,7 +770,7 @@ namespace DewCore.Database.MySQL
         public T Brackets<T>(IQueryComposer innerComposer) where T : class, IQueryComposer, new()
         {
             CurrentQuery += $" ({innerComposer.ComposedQuery()}) ";
-            return new T().SetQuery<T>(GetAndCleanQuery);
+            return new T().SetQuery<T>(GetAndCleanQuery());
         }
         /// <summary>
         /// Group by
@@ -775,7 +780,7 @@ namespace DewCore.Database.MySQL
         public IGroupByComposer GroupBy(params string[] columns)
         {
             CurrentQuery += $" GROUP BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
-            return new GroupByComposer(GetAndCleanQuery);
+            return new GroupByComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Join composition
@@ -787,7 +792,7 @@ namespace DewCore.Database.MySQL
             if (!alias.IsNullOrEmpty())
                 alias = $" AS {alias}";
             CurrentQuery += $" INNER JOIN ({table}){alias} ";
-            return new JoinComposer(GetAndCleanQuery);
+            return new JoinComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Left join composition
@@ -799,7 +804,7 @@ namespace DewCore.Database.MySQL
             if (!alias.IsNullOrEmpty())
                 alias = $" AS {alias}";
             CurrentQuery += $" LEFT JOIN ({table}){alias} ";
-            return new JoinComposer(GetAndCleanQuery);
+            return new JoinComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Order by 
@@ -809,7 +814,7 @@ namespace DewCore.Database.MySQL
         public IOrderByComposer OrderBy(params string[] columns)
         {
             CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} ";
-            return new OrderByComposer(GetAndCleanQuery);
+            return new OrderByComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Order by desc
@@ -819,7 +824,7 @@ namespace DewCore.Database.MySQL
         public IOrderByComposer OrderByDesc(params string[] columns)
         {
             CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
-            return new OrderByComposer(GetAndCleanQuery);
+            return new OrderByComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Right join composer
@@ -831,7 +836,7 @@ namespace DewCore.Database.MySQL
             if (!alias.IsNullOrEmpty())
                 alias = $" AS {alias}";
             CurrentQuery += $" RIGHT JOIN ({table}){alias} ";
-            return new JoinComposer(GetAndCleanQuery);
+            return new JoinComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Where composer
@@ -843,7 +848,7 @@ namespace DewCore.Database.MySQL
         public IWhereComposer Where(string column, string op, string value)
         {
             CurrentQuery += $" WHERE {column} {op} {value} ";
-            return new WhereComposer(GetAndCleanQuery);
+            return new WhereComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Single Where composer
@@ -852,7 +857,7 @@ namespace DewCore.Database.MySQL
         public IWhereComposer Where()
         {
             CurrentQuery += " WHERE ";
-            return new WhereComposer(GetAndCleanQuery);
+            return new WhereComposer(GetAndCleanQuery());
         }
     }
     /// <summary>
@@ -876,7 +881,7 @@ namespace DewCore.Database.MySQL
         public IBetweenComposer Between(string column, string before, string after)
         {
             CurrentQuery += $" {column} BETWEEN {before} AND {after} ";
-            return new BetweenComposer(GetAndCleanQuery);
+            return new BetweenComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Condition composer
@@ -889,7 +894,7 @@ namespace DewCore.Database.MySQL
         public IConditionComposer Condition(string column, string op, string value, string comma = "")
         {
             CurrentQuery += $" {column} {op} {value} {comma}";
-            return new ConditionComposer(GetAndCleanQuery);
+            return new ConditionComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// In composer
@@ -899,7 +904,7 @@ namespace DewCore.Database.MySQL
         public IInComposer In(IQueryComposer innerComposer)
         {
             CurrentQuery += $" IN ({innerComposer.ComposedQuery()}) ";
-            return new InComposer(GetAndCleanQuery);
+            return new InComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Like composer
@@ -910,7 +915,7 @@ namespace DewCore.Database.MySQL
         public ILikeComposer Like(string column, string pattern)
         {
             CurrentQuery += $" {column} LIKE '{pattern}'";
-            return new LikeComposer(GetAndCleanQuery);
+            return new LikeComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Not composer
@@ -919,7 +924,7 @@ namespace DewCore.Database.MySQL
         public INotComposer Not()
         {
             CurrentQuery += " NOT ";
-            return new NotComposer(GetAndCleanQuery);
+            return new NotComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Not composer
@@ -931,7 +936,7 @@ namespace DewCore.Database.MySQL
         public INotComposer Not(string column, string op, string value)
         {
             CurrentQuery += $" NOT {column} {op} {value} ";
-            return new NotComposer(GetAndCleanQuery);
+            return new NotComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Brackets composer
@@ -942,7 +947,7 @@ namespace DewCore.Database.MySQL
         public T Brackets<T>(IQueryComposer innerComposer) where T : class, IQueryComposer, new()
         {
             CurrentQuery += $" ({innerComposer.ComposedQuery()}) ";
-            return new T().SetQuery<T>(GetAndCleanQuery);
+            return new T().SetQuery<T>(GetAndCleanQuery());
         }
         /// <summary>
         /// Single or composer
@@ -951,7 +956,7 @@ namespace DewCore.Database.MySQL
         public IOrComposer Or()
         {
             CurrentQuery += " OR ";
-            return new OrComposer(GetAndCleanQuery);
+            return new OrComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Or composer
@@ -963,7 +968,7 @@ namespace DewCore.Database.MySQL
         public IOrComposer Or(string column, string op, string value)
         {
             CurrentQuery += $" OR {column} {op} {value} ";
-            return new OrComposer(GetAndCleanQuery);
+            return new OrComposer(GetAndCleanQuery());
         }
 
         /// <summary>
@@ -973,7 +978,7 @@ namespace DewCore.Database.MySQL
         public IAndComposer And()
         {
             CurrentQuery += " AND ";
-            return new AndComposer(GetAndCleanQuery);
+            return new AndComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// And composer
@@ -985,7 +990,7 @@ namespace DewCore.Database.MySQL
         public IAndComposer And(string column, string op, string value)
         {
             CurrentQuery += $" AND {column} {op} {value} ";
-            return new AndComposer(GetAndCleanQuery);
+            return new AndComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Group by composer
@@ -995,7 +1000,7 @@ namespace DewCore.Database.MySQL
         public IGroupByComposer GroupBy(params string[] columns)
         {
             CurrentQuery += $" GROUP BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
-            return new GroupByComposer(GetAndCleanQuery);
+            return new GroupByComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Order by composer
@@ -1005,7 +1010,7 @@ namespace DewCore.Database.MySQL
         public IOrderByComposer OrderBy(params string[] columns)
         {
             CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} ";
-            return new OrderByComposer(GetAndCleanQuery);
+            return new OrderByComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Order by composer
@@ -1015,7 +1020,7 @@ namespace DewCore.Database.MySQL
         public IOrderByComposer OrderByDesc(params string[] columns)
         {
             CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
-            return new OrderByComposer(GetAndCleanQuery);
+            return new OrderByComposer(GetAndCleanQuery());
         }
     }
     /// <summary>
@@ -1036,7 +1041,7 @@ namespace DewCore.Database.MySQL
         public IAndComposer And()
         {
             CurrentQuery += " AND ";
-            return new AndComposer(GetAndCleanQuery);
+            return new AndComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// And composer
@@ -1048,7 +1053,7 @@ namespace DewCore.Database.MySQL
         public IAndComposer And(string column, string op, string value)
         {
             CurrentQuery += $" AND {column} {op} {value} ";
-            return new AndComposer(GetAndCleanQuery);
+            return new AndComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Single or composer
@@ -1057,7 +1062,7 @@ namespace DewCore.Database.MySQL
         public IOrComposer Or()
         {
             CurrentQuery += " OR ";
-            return new OrComposer(GetAndCleanQuery);
+            return new OrComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Or composer
@@ -1069,7 +1074,7 @@ namespace DewCore.Database.MySQL
         public IOrComposer Or(string column, string op, string value)
         {
             CurrentQuery += $" OR {column} {op} {value} ";
-            return new OrComposer(GetAndCleanQuery);
+            return new OrComposer(GetAndCleanQuery());
         }
     }
     /// <summary>
@@ -1093,7 +1098,7 @@ namespace DewCore.Database.MySQL
         public IAndComposer And()
         {
             CurrentQuery += " AND ";
-            return new AndComposer(GetAndCleanQuery);
+            return new AndComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// And composer
@@ -1105,7 +1110,7 @@ namespace DewCore.Database.MySQL
         public IAndComposer And(string column, string op, string value)
         {
             CurrentQuery += $" AND {column} {op} {value} ";
-            return new AndComposer(GetAndCleanQuery);
+            return new AndComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Between composer
@@ -1117,7 +1122,7 @@ namespace DewCore.Database.MySQL
         public IBetweenComposer Between(string column, string before, string after)
         {
             CurrentQuery += $" {column} BETWEEN {before} AND {after}";
-            return new BetweenComposer(GetAndCleanQuery);
+            return new BetweenComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Brakets composer
@@ -1128,7 +1133,7 @@ namespace DewCore.Database.MySQL
         public T Brackets<T>(IQueryComposer innerComposer) where T : class, IQueryComposer, new()
         {
             CurrentQuery += $" ({innerComposer.ComposedQuery()}) ";
-            return new T().SetQuery<T>(GetAndCleanQuery);
+            return new T().SetQuery<T>(GetAndCleanQuery());
         }
         /// <summary>
         /// Group by composer
@@ -1138,7 +1143,7 @@ namespace DewCore.Database.MySQL
         public IGroupByComposer GroupBy(params string[] columns)
         {
             CurrentQuery += $" GROUP BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
-            return new GroupByComposer(GetAndCleanQuery);
+            return new GroupByComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// In composer
@@ -1148,7 +1153,7 @@ namespace DewCore.Database.MySQL
         public IInComposer In(IQueryComposer innerComposer)
         {
             CurrentQuery += $" IN ({innerComposer.ComposedQuery()}) ";
-            return new InComposer(GetAndCleanQuery);
+            return new InComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Like composer
@@ -1159,7 +1164,7 @@ namespace DewCore.Database.MySQL
         public ILikeComposer Like(string column, string pattern)
         {
             CurrentQuery += $" {column} LIKE '{pattern}'";
-            return new LikeComposer(GetAndCleanQuery);
+            return new LikeComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Single not composer
@@ -1168,7 +1173,7 @@ namespace DewCore.Database.MySQL
         public INotComposer Not()
         {
             CurrentQuery += " NOT ";
-            return new NotComposer(GetAndCleanQuery);
+            return new NotComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Single not composer
@@ -1180,7 +1185,7 @@ namespace DewCore.Database.MySQL
         public INotComposer Not(string column, string op, string value)
         {
             CurrentQuery += $" NOT {column} {op} {value} ";
-            return new NotComposer(GetAndCleanQuery);
+            return new NotComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Single or composer
@@ -1189,7 +1194,7 @@ namespace DewCore.Database.MySQL
         public IOrComposer Or()
         {
             CurrentQuery += " OR ";
-            return new OrComposer(GetAndCleanQuery);
+            return new OrComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Or composer
@@ -1201,7 +1206,7 @@ namespace DewCore.Database.MySQL
         public IOrComposer Or(string column, string op, string value)
         {
             CurrentQuery += $" OR {column} {op} {value} ";
-            return new OrComposer(GetAndCleanQuery);
+            return new OrComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Order by composer
@@ -1211,7 +1216,7 @@ namespace DewCore.Database.MySQL
         public IOrderByComposer OrderBy(params string[] columns)
         {
             CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} ";
-            return new OrderByComposer(GetAndCleanQuery);
+            return new OrderByComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Order by desc composer
@@ -1221,7 +1226,7 @@ namespace DewCore.Database.MySQL
         public IOrderByComposer OrderByDesc(params string[] columns)
         {
             CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
-            return new OrderByComposer(GetAndCleanQuery);
+            return new OrderByComposer(GetAndCleanQuery());
         }
 
     }
@@ -1243,7 +1248,7 @@ namespace DewCore.Database.MySQL
         public IAndComposer And()
         {
             CurrentQuery += " AND ";
-            return new AndComposer(GetAndCleanQuery);
+            return new AndComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// And composer
@@ -1255,7 +1260,7 @@ namespace DewCore.Database.MySQL
         public IAndComposer And(string column, string op, string value)
         {
             CurrentQuery += $" AND {column} {op} {value} ";
-            return new AndComposer(GetAndCleanQuery);
+            return new AndComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Between composer
@@ -1267,7 +1272,7 @@ namespace DewCore.Database.MySQL
         public IBetweenComposer Between(string column, string before, string after)
         {
             CurrentQuery += $" {column} BETWEEN {before} AND {after}";
-            return new BetweenComposer(GetAndCleanQuery);
+            return new BetweenComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Condition composer
@@ -1280,7 +1285,7 @@ namespace DewCore.Database.MySQL
         public IConditionComposer Condition(string column, string op, string value, string comma = "")
         {
             CurrentQuery += $" {column} {op} {value} {comma}";
-            return new ConditionComposer(GetAndCleanQuery);
+            return new ConditionComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// In composer
@@ -1290,7 +1295,7 @@ namespace DewCore.Database.MySQL
         public IInComposer In(IQueryComposer innerComposer)
         {
             CurrentQuery += $" IN ({innerComposer.ComposedQuery()}) ";
-            return new InComposer(GetAndCleanQuery);
+            return new InComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Like composer
@@ -1301,7 +1306,7 @@ namespace DewCore.Database.MySQL
         public ILikeComposer Like(string column, string pattern)
         {
             CurrentQuery += $" {column} LIKE '{pattern}'";
-            return new LikeComposer(GetAndCleanQuery);
+            return new LikeComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Single not composer
@@ -1310,7 +1315,7 @@ namespace DewCore.Database.MySQL
         public INotComposer Not()
         {
             CurrentQuery += " NOT ";
-            return new NotComposer(GetAndCleanQuery);
+            return new NotComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Not composer
@@ -1322,7 +1327,7 @@ namespace DewCore.Database.MySQL
         public INotComposer Not(string column, string op, string value)
         {
             CurrentQuery += $" NOT {column} {op} {value} ";
-            return new NotComposer(GetAndCleanQuery);
+            return new NotComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Brackets composer
@@ -1333,7 +1338,7 @@ namespace DewCore.Database.MySQL
         public T Brackets<T>(IQueryComposer innerComposer) where T : class, IQueryComposer, new()
         {
             CurrentQuery += $" ({innerComposer.ComposedQuery()}) ";
-            return new T().SetQuery<T>(GetAndCleanQuery);
+            return new T().SetQuery<T>(GetAndCleanQuery());
         }
         /// <summary>
         /// Single or composer
@@ -1342,7 +1347,7 @@ namespace DewCore.Database.MySQL
         public IOrComposer Or()
         {
             CurrentQuery += " OR ";
-            return new OrComposer(GetAndCleanQuery);
+            return new OrComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Or composer
@@ -1354,7 +1359,7 @@ namespace DewCore.Database.MySQL
         public IOrComposer Or(string column, string op, string value)
         {
             CurrentQuery += $" OR {column} {op} {value} ";
-            return new OrComposer(GetAndCleanQuery);
+            return new OrComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Group by composer
@@ -1364,7 +1369,7 @@ namespace DewCore.Database.MySQL
         public IGroupByComposer GroupBy(params string[] columns)
         {
             CurrentQuery += $" GROUP BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
-            return new GroupByComposer(GetAndCleanQuery);
+            return new GroupByComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Order by composer
@@ -1374,7 +1379,7 @@ namespace DewCore.Database.MySQL
         public IOrderByComposer OrderBy(params string[] columns)
         {
             CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} ";
-            return new OrderByComposer(GetAndCleanQuery);
+            return new OrderByComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Order by composer
@@ -1384,7 +1389,7 @@ namespace DewCore.Database.MySQL
         public IOrderByComposer OrderByDesc(params string[] columns)
         {
             CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
-            return new OrderByComposer(GetAndCleanQuery);
+            return new OrderByComposer(GetAndCleanQuery());
         }
     }
     /// <summary>
@@ -1405,7 +1410,7 @@ namespace DewCore.Database.MySQL
         public IAndComposer And()
         {
             CurrentQuery += " AND ";
-            return new AndComposer(GetAndCleanQuery);
+            return new AndComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// And composer
@@ -1417,7 +1422,7 @@ namespace DewCore.Database.MySQL
         public IAndComposer And(string column, string op, string value)
         {
             CurrentQuery += $" AND {column} {op} {value} ";
-            return new AndComposer(GetAndCleanQuery);
+            return new AndComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Single or composer
@@ -1426,7 +1431,7 @@ namespace DewCore.Database.MySQL
         public IOrComposer Or()
         {
             CurrentQuery += " OR ";
-            return new OrComposer(GetAndCleanQuery);
+            return new OrComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Or composer
@@ -1438,7 +1443,7 @@ namespace DewCore.Database.MySQL
         public IOrComposer Or(string column, string op, string value)
         {
             CurrentQuery += $" OR {column} {op} {value} ";
-            return new OrComposer(GetAndCleanQuery);
+            return new OrComposer(GetAndCleanQuery());
         }
     }
     /// <summary>
@@ -1459,7 +1464,7 @@ namespace DewCore.Database.MySQL
         public IAndComposer And()
         {
             CurrentQuery += " AND ";
-            return new AndComposer(GetAndCleanQuery);
+            return new AndComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// And composer
@@ -1471,7 +1476,7 @@ namespace DewCore.Database.MySQL
         public IAndComposer And(string column, string op, string value)
         {
             CurrentQuery += $" AND {column} {op} {value} ";
-            return new AndComposer(GetAndCleanQuery);
+            return new AndComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Single or composer
@@ -1480,7 +1485,7 @@ namespace DewCore.Database.MySQL
         public IOrComposer Or()
         {
             CurrentQuery += " OR ";
-            return new OrComposer(GetAndCleanQuery);
+            return new OrComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Or Composer
@@ -1492,7 +1497,7 @@ namespace DewCore.Database.MySQL
         public IOrComposer Or(string column, string op, string value)
         {
             CurrentQuery += $" OR {column} {op} {value} ";
-            return new OrComposer(GetAndCleanQuery);
+            return new OrComposer(GetAndCleanQuery());
         }
     }
     /// <summary>
@@ -1513,7 +1518,7 @@ namespace DewCore.Database.MySQL
         public IAndComposer And()
         {
             CurrentQuery += " AND ";
-            return new AndComposer(GetAndCleanQuery);
+            return new AndComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// And composer
@@ -1525,7 +1530,7 @@ namespace DewCore.Database.MySQL
         public IAndComposer And(string column, string op, string value)
         {
             CurrentQuery += $" AND {column} {op} {value} ";
-            return new AndComposer(GetAndCleanQuery);
+            return new AndComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Between composer
@@ -1537,7 +1542,7 @@ namespace DewCore.Database.MySQL
         public IBetweenComposer Between(string column, string before, string after)
         {
             CurrentQuery += $" {column} BETWEEN {before} AND {after} ";
-            return new BetweenComposer(GetAndCleanQuery);
+            return new BetweenComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Brackets composer
@@ -1548,7 +1553,7 @@ namespace DewCore.Database.MySQL
         public T Brackets<T>(IQueryComposer innerComposer) where T : class, IQueryComposer, new()
         {
             CurrentQuery += $" ({innerComposer.ComposedQuery()}) ";
-            return new T().SetQuery<T>(GetAndCleanQuery);
+            return new T().SetQuery<T>(GetAndCleanQuery());
         }
         /// <summary>
         /// In composer
@@ -1558,7 +1563,7 @@ namespace DewCore.Database.MySQL
         public IInComposer In(IQueryComposer innerComposer)
         {
             CurrentQuery += $" IN ({innerComposer.ComposedQuery()}) ";
-            return new InComposer(GetAndCleanQuery);
+            return new InComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Like composer
@@ -1569,7 +1574,7 @@ namespace DewCore.Database.MySQL
         public ILikeComposer Like(string column, string pattern)
         {
             CurrentQuery += $" {column} LIKE '{pattern}'";
-            return new LikeComposer(GetAndCleanQuery);
+            return new LikeComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Single or composer
@@ -1578,7 +1583,7 @@ namespace DewCore.Database.MySQL
         public IOrComposer Or()
         {
             CurrentQuery += " OR ";
-            return new OrComposer(GetAndCleanQuery);
+            return new OrComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Or composer
@@ -1590,7 +1595,7 @@ namespace DewCore.Database.MySQL
         public IOrComposer Or(string column, string op, string value)
         {
             CurrentQuery += $" OR {column} {op} {value} ";
-            return new OrComposer(GetAndCleanQuery);
+            return new OrComposer(GetAndCleanQuery());
         }
     }
     /// <summary>
@@ -1614,7 +1619,7 @@ namespace DewCore.Database.MySQL
             string cols = "*";
             cols = columns.Length <= 0 ? "*" : columns.Aggregate((curr, next) => curr + "," + next);
             CurrentQuery += $"SELECT {cols} ";
-            return new SelectComposer(GetAndCleanQuery);
+            return new SelectComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Select distinct composer
@@ -1626,7 +1631,7 @@ namespace DewCore.Database.MySQL
             string cols = null;
             cols = columns.Length <= 0 ? "*" : columns.Aggregate((curr, next) => curr + "," + next);
             CurrentQuery += $"SELECT DISTINCT {cols} ";
-            return new SelectComposer(GetAndCleanQuery);
+            return new SelectComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Values composer
@@ -1636,7 +1641,7 @@ namespace DewCore.Database.MySQL
         public IValuesComposer Values(params string[] values)
         {
             CurrentQuery += $" VALUES ({values.Aggregate((curr, next) => curr + "," + next)}) ";
-            return new ValuesComposer(GetAndCleanQuery);
+            return new ValuesComposer(GetAndCleanQuery());
         }
     }
     /// <summary>
@@ -1658,7 +1663,7 @@ namespace DewCore.Database.MySQL
         public IValuesComposer Values(params string[] values)
         {
             CurrentQuery += $", ({values.Aggregate((curr, next) => curr + "," + next)}) ";
-            return new ValuesComposer(GetAndCleanQuery);
+            return new ValuesComposer(GetAndCleanQuery());
         }
     }
     /// <summary>
@@ -1698,7 +1703,7 @@ namespace DewCore.Database.MySQL
         public IOrderByComposer OrderBy(params string[] columns)
         {
             CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} ";
-            return new OrderByComposer(GetAndCleanQuery);
+            return new OrderByComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Order by desc composer
@@ -1708,7 +1713,7 @@ namespace DewCore.Database.MySQL
         public IOrderByComposer OrderByDesc(params string[] columns)
         {
             CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
-            return new OrderByComposer(GetAndCleanQuery);
+            return new OrderByComposer(GetAndCleanQuery());
         }
     }
     /// <summary>
@@ -1735,7 +1740,7 @@ namespace DewCore.Database.MySQL
         public IWhereComposer Where(string column, string op, string value)
         {
             CurrentQuery += $" WHERE {column} {op} {value} ";
-            return new WhereComposer(GetAndCleanQuery);
+            return new WhereComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Single Where composer
@@ -1744,7 +1749,7 @@ namespace DewCore.Database.MySQL
         public IWhereComposer Where()
         {
             CurrentQuery += " WHERE ";
-            return new WhereComposer(GetAndCleanQuery);
+            return new WhereComposer(GetAndCleanQuery());
         }
     }
     /// <summary>
@@ -1766,7 +1771,7 @@ namespace DewCore.Database.MySQL
         public IGroupByComposer GroupBy(params string[] columns)
         {
             CurrentQuery += $" GROUP BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
-            return new GroupByComposer(GetAndCleanQuery);
+            return new GroupByComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Order by composer
@@ -1776,7 +1781,7 @@ namespace DewCore.Database.MySQL
         public IOrderByComposer OrderBy(params string[] columns)
         {
             CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} ";
-            return new OrderByComposer(GetAndCleanQuery);
+            return new OrderByComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Order by composer
@@ -1786,7 +1791,7 @@ namespace DewCore.Database.MySQL
         public IOrderByComposer OrderByDesc(params string[] columns)
         {
             CurrentQuery += $" ORDER BY {columns.Aggregate((curr, next) => curr + "," + next)} DESC";
-            return new OrderByComposer(GetAndCleanQuery);
+            return new OrderByComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Where composer
@@ -1798,7 +1803,7 @@ namespace DewCore.Database.MySQL
         public IWhereComposer Where(string column, string op, string value)
         {
             CurrentQuery += $" WHERE {column} {op} {value} ";
-            return new WhereComposer(GetAndCleanQuery);
+            return new WhereComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// Single where composer
@@ -1807,7 +1812,7 @@ namespace DewCore.Database.MySQL
         public IWhereComposer Where()
         {
             CurrentQuery += " WHERE ";
-            return new WhereComposer(GetAndCleanQuery);
+            return new WhereComposer(GetAndCleanQuery());
         }
         /// <summary>
         /// On brackets
@@ -1818,7 +1823,7 @@ namespace DewCore.Database.MySQL
         public T Brackets<T>(IQueryComposer innerComposer) where T : class, IQueryComposer, new()
         {
             CurrentQuery += $" ({innerComposer.ComposedQuery()}) ";
-            return new T().SetQuery<T>(GetAndCleanQuery);
+            return new T().SetQuery<T>(GetAndCleanQuery());
         }
         /// <summary>
         /// On composer
@@ -1829,7 +1834,7 @@ namespace DewCore.Database.MySQL
         public IOnComposer On(string columnA, string columnB)
         {
             CurrentQuery += $" ON {columnA} = {columnB} ";
-            return new OnComposer(GetAndCleanQuery);
+            return new OnComposer(GetAndCleanQuery());
         }
     }
 
