@@ -1650,6 +1650,16 @@ namespace DewCore.Database.MySQL
         /// </summary>
         /// <param name="query"></param>
         public ValuesComposer(string query) => CurrentQuery += query;
+        /// <summary>
+        /// Append a new valuecomposer
+        /// </summary>
+        /// <param name="values"></param>
+        /// <returns></returns>
+        public IValuesComposer Values(params string[] values)
+        {
+            CurrentQuery += $", ({values.Aggregate((curr, next) => curr + "," + next)}) ";
+            return new ValuesComposer(GetAndCleanQuery);
+        }
     }
     /// <summary>
     /// OrderByComposer
