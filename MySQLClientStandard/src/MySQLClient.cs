@@ -198,6 +198,8 @@ namespace DewCore.Database.MySQL
             }
             return result;
         }
+        private bool IsNullable(Type type) => System.Nullable.GetUnderlyingType(type) != null;
+        private Type GetNullable(Type t) => System.Nullable.GetUnderlyingType(t);
         /// <summary>
         /// Set the fields of a Type T from a reader of a T table
         /// </summary>
@@ -220,7 +222,16 @@ namespace DewCore.Database.MySQL
                     if (property != null)
                     {
                         var value = reader.GetValue(i).GetType() == typeof(DBNull) ? null : reader.GetValue(i);
-                        property.SetValue(item, value);
+                        if (IsNullable(property.PropertyType))
+                        {
+                            var objValue = Convert.ChangeType(value, GetNullable(property.PropertyType));
+
+                            property.SetValue(item, objValue);
+                        }
+                        else
+                        {
+                            property.SetValue(item, value);
+                        }
                     }
                 }
                 result.Add(item);
