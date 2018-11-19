@@ -14,7 +14,7 @@
     <PackageTags>MySQL .net standard</PackageTags>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageIconUrl>http://andrewdev.eu/wp-content/uploads/2016/08/OnlyLogo.png</PackageIconUrl>
-    <Version>2.13.0</Version>
+    <Version>2.14.0</Version>
     <PackageReleaseNotes>Fixed nullable columns cast exception</PackageReleaseNotes>
     <AssemblyVersion>2.8.0.0</AssemblyVersion>
     <FileVersion>2.7.0.0</FileVersion>

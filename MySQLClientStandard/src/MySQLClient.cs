@@ -218,15 +218,21 @@ namespace DewCore.Database.MySQL
                 for (int i = 0; i < columns; i++)
                 {
                     var colName = reader.GetName(i);
+                    if (DebugOn)
+                        debugger.WriteLine("Processing setfield column:" + colName);
                     var property = properties.FirstOrDefault((x) => { return x.Name == colName; });
                     if (property != null)
                     {
                         var value = reader.GetValue(i).GetType() == typeof(DBNull) ? null : reader.GetValue(i);
                         if (IsNullable(property.PropertyType))
                         {
-                            var objValue = Convert.ChangeType(value, GetNullable(property.PropertyType));
-
-                            property.SetValue(item, objValue);
+                            if (value != null)
+                            {
+                                var objValue = Convert.ChangeType(value, GetNullable(property.PropertyType));
+                                property.SetValue(item, objValue);
+                            }
+                            else
+                                property.SetValue(item, value);
                         }
                         else
                         {
